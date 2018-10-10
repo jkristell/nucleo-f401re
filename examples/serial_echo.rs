@@ -21,7 +21,7 @@ fn main() -> ! {
     if let Some(p) = stm32::Peripherals::take() {
         let gpioa = p.GPIOA.split();
         let mut rcc = p.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(48.mhz()).freeze();
+        let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
         let tx = gpioa.pa9.into_alternate_af7();
         let rx = gpioa.pa10.into_alternate_af7();
@@ -33,7 +33,7 @@ fn main() -> ! {
         loop {
             // Read character and echo it back
             let received = block!(rx.read()).unwrap();
-            block!(tx.write(received+1)).ok();
+            block!(tx.write(received)).ok();
         }
     }
 
