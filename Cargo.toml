@@ -1,7 +1,19 @@
 [package]
-authors = ["Johan <johan@jott.se>"]
+authors = ["Johan Kristell <johan@jott.se>"]
 name = "nucleo-f401re"
 version = "0.1.0"
+description = "Board Support crate for the STM32 NUCLEO-f401RE development board"
+repository = "https://github.com/jkristell/nucleo-f401re"
+license = "0BSD"
+keywords = [
+    "arm",
+    "cortex-m",
+    "template",
+]
+categories = [
+    "embedded",
+    "no-std",
+]
 
 [dependencies]
 cortex-m = "0.5.7"
