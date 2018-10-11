@@ -12,7 +12,7 @@ extern crate nb;
 use board::hal::prelude::*;
 use board::hal::stm32;
 
-use board::hal::serial::Serial;
+use board::hal::serial::{Serial, config::Config};
 
 use cortex_m_rt::entry;
 
@@ -26,7 +26,10 @@ fn main() -> ! {
         let tx = gpioa.pa9.into_alternate_af7();
         let rx = gpioa.pa10.into_alternate_af7();
 
-        let serial = Serial::usart1(p.USART1, (tx, rx), 115_200.bps(), clocks);
+        let config = Config::default()
+            .baudrate(115200.bps());
+
+        let serial = Serial::usart1(p.USART1, (tx, rx), config, clocks).unwrap();
 
         let (mut tx, mut rx) = serial.split();
 
