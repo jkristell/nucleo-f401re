@@ -31,6 +31,7 @@ version = "0.2.0"
 [dev-dependencies]
 nb = "0.1.1"
 panic-abort = "0.3.0"
+hd44780-driver = "0.2.0"
 
 [features]
 default = ["rt"]
