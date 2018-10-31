@@ -16,8 +16,8 @@ categories = [
 ]
 
 [dependencies]
-cortex-m = "0.5.7"
-cortex-m-rt = "0.6.4"
+cortex-m = "0.5.8"
+cortex-m-rt = "0.6.5"
 
 [dependencies.embedded-hal]
 features = ["unproven"]
@@ -26,7 +26,7 @@ version = "0.2.1"
 [dependencies.stm32f4xx-hal]
 default-features = false
 features = ["rt", "stm32f401"]
-version = "0.2.0"
+version = "0.2.2"
 
 [dev-dependencies]
 nb = "0.1.1"
