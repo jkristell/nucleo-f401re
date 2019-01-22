@@ -2,7 +2,7 @@
 #![no_std]
 
 extern crate cortex_m_rt;
-extern crate panic_abort;
+extern crate panic_semihosting;
 
 extern crate nucleo_f401re as board;
 
