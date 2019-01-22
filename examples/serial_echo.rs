@@ -20,16 +20,16 @@ use cortex_m_rt::entry;
 fn main() -> ! {
     if let Some(p) = stm32::Peripherals::take() {
         let gpioa = p.GPIOA.split();
-        let mut rcc = p.RCC.constrain();
+        let rcc = p.RCC.constrain();
         let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
-        let tx = gpioa.pa9.into_alternate_af7();
-        let rx = gpioa.pa10.into_alternate_af7();
+        let tx = gpioa.pa2.into_alternate_af7();
+        let rx = gpioa.pa3.into_alternate_af7();
 
         let config = Config::default()
             .baudrate(115200.bps());
 
-        let serial = Serial::usart1(p.USART1, (tx, rx), config, clocks).unwrap();
+        let serial = Serial::usart2(p.USART2, (tx, rx), config, clocks).unwrap();
 
         let (mut tx, mut rx) = serial.split();
 
