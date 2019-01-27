@@ -4,10 +4,13 @@ name = "nucleo-f401re"
 version = "0.1.1"
 description = "Board Support crate for the STM32 NUCLEO-f401RE development board"
 repository = "https://github.com/jkristell/nucleo-f401re"
+readme = "README.md"
 license = "0BSD"
 keywords = [
     "arm",
     "cortex-m",
+    "stm32f401",
+    "nucleo",
     "template",
 ]
 categories = [
