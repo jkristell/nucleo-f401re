@@ -2,6 +2,7 @@
 authors = ["Johan Kristell <johan@jott.se>"]
 name = "nucleo-f401re"
 version = "0.1.1"
+edition = "2018"
 description = "Board Support crate for the STM32 NUCLEO-f401RE development board"
 repository = "https://github.com/jkristell/nucleo-f401re"
 readme = "README.md"
@@ -37,6 +38,7 @@ nb = "0.1.1"
 hd44780-driver = "0.3.0"
 cortex-m-semihosting = "0.3"
 panic-semihosting = "0.5.1"
+cortex-m-rtfm = "0.4.2"
 
 [features]
 default = ["rt"]
