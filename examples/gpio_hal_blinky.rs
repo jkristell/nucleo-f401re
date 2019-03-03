@@ -25,7 +25,7 @@ fn main() -> ! {
         led.set_low();
 
         // Constrain clock registers
-        let mut rcc = p.RCC.constrain();
+        let rcc = p.RCC.constrain();
 
         let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 

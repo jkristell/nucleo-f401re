@@ -27,19 +27,19 @@ fn main() -> ! {
         let gpioc = p.GPIOC.split();
 
         // Configure the pins as outputs
-        let mut d7 = gpioa.pa0.into_push_pull_output();
-        let mut d6 = gpioa.pa1.into_push_pull_output();
-        let mut d5 = gpioa.pa4.into_push_pull_output();
-        let mut d4 = gpiob.pb0.into_push_pull_output();
-        let mut rs = gpioc.pc1.into_push_pull_output();
-        let mut en = gpioc.pc0.into_push_pull_output();
+        let d7 = gpioa.pa0.into_push_pull_output();
+        let d6 = gpioa.pa1.into_push_pull_output();
+        let d5 = gpioa.pa4.into_push_pull_output();
+        let d4 = gpiob.pb0.into_push_pull_output();
+        let rs = gpioc.pc1.into_push_pull_output();
+        let en = gpioc.pc0.into_push_pull_output();
 
         // Constrain clock registers
-        let mut rcc = p.RCC.constrain();
+        let rcc = p.RCC.constrain();
         let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
         // Get delay provider
-        let mut delay = Delay::new(cp.SYST, clocks);
+        let delay = Delay::new(cp.SYST, clocks);
 
         // Setup the driver
         let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, delay);
