@@ -21,35 +21,39 @@ use hd44780_driver::HD44780;
 
 #[entry]
 fn main() -> ! {
-    if let (Some(p), Some(cp)) = (stm32::Peripherals::take(), Peripherals::take()) {
-        let gpioa = p.GPIOA.split();
-        let gpiob = p.GPIOB.split();
-        let gpioc = p.GPIOC.split();
 
-        // Configure the pins as outputs
-        let d7 = gpioa.pa0.into_push_pull_output();
-        let d6 = gpioa.pa1.into_push_pull_output();
-        let d5 = gpioa.pa4.into_push_pull_output();
-        let d4 = gpiob.pb0.into_push_pull_output();
-        let rs = gpioc.pc1.into_push_pull_output();
-        let en = gpioc.pc0.into_push_pull_output();
+    let device = stm32::Peripherals::take().unwrap();
+    let core = Peripherals::take().unwrap();
 
-        // Constrain clock registers
-        let rcc = p.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let gpioa = device.GPIOA.split();
+    let gpiob = device.GPIOB.split();
+    let gpioc = device.GPIOC.split();
 
-        // Get delay provider
-        let delay = Delay::new(cp.SYST, clocks);
+    // Configure the pins as outputs
+    let d7 = gpioa.pa0.into_push_pull_output();
+    let d6 = gpioa.pa1.into_push_pull_output();
+    let d5 = gpioa.pa4.into_push_pull_output();
+    let d4 = gpiob.pb0.into_push_pull_output();
+    let rs = gpioc.pc1.into_push_pull_output();
+    let en = gpioc.pc0.into_push_pull_output();
 
-        // Setup the driver
-        let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, delay);
+    // Constrain clock registers
+    let rcc = device.RCC.constrain();
+    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
-        lcd.reset();
-        lcd.clear();
-        let _ = lcd.write_str("Hello, World!");
-        lcd.set_cursor_pos(40);
-        let _ = lcd.write_str("Nucleo f401RE");
+    // Get delay provider
+    let delay = Delay::new(core.SYST, clocks);
+
+    // Setup the driver
+    let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, delay);
+
+    lcd.reset();
+    lcd.clear();
+    let _ = lcd.write_str("Hello, World!");
+    lcd.set_cursor_pos(40);
+    let _ = lcd.write_str("Nucleo f401RE");
+
+    loop {
+
     }
-
-    loop {}
 }
