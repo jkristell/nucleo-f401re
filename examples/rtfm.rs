@@ -65,8 +65,8 @@ const APP: () = {
         loop {}
     }
 
-    #[interrupt(resources = [EXTI, LED, BUTTON])]
-    fn EXTI15_10() {
+    #[interrupt(binds = EXTI15_10, resources = [EXTI, LED, BUTTON])]
+    fn on_button_press() {
         // Clear the interrupt
         resources.BUTTON.clear_interrupt_pending_bit(resources.EXTI);
         // Toggle the led
