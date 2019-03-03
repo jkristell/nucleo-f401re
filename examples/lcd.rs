@@ -8,6 +8,8 @@ extern crate panic_semihosting;
 extern crate nucleo_f401re as board;
 extern crate hd44780_driver;
 
+use core::fmt::Write;
+
 use cortex_m_rt::entry;
 
 use board::hal::delay::Delay;
@@ -44,9 +46,9 @@ fn main() -> ! {
 
         lcd.reset();
         lcd.clear();
-        lcd.write_str("Hello, World!");
+        let _ = lcd.write_str("Hello, World!");
         lcd.set_cursor_pos(40);
-        lcd.write_str("Nucleo f401RE");
+        let _ = lcd.write_str("Nucleo f401RE");
     }
 
     loop {}

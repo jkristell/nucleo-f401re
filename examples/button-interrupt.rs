@@ -64,9 +64,9 @@ fn main() -> ! {
     }
 }
 
-interrupt!(EXTI15_10, button_press);
 
-fn button_press() {
+#[interrupt]
+fn EXTI15_10() {
     // Clear the interrupt
     unsafe {
         (*stm32::EXTI::ptr()).pr.modify(|_, w| { w.pr13().set_bit() });
