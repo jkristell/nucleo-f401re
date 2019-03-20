@@ -15,6 +15,9 @@ use board::Interrupt;
 
 use cortex_m::peripheral::Peripherals;
 
+use nb::block;
+
+
 
 #[entry]
 fn main() -> ! {
@@ -35,7 +38,8 @@ fn main() -> ! {
 
 
     let sck = gpiob.pb3.into_alternate_af5();
-    let miso = gpiob.pb4.into_alternate_af5();
+    //let miso = gpiob.pb4.into_alternate_af5();
+    let miso = spi::NoMiso;
     let mosi = gpiob.pb5.into_alternate_af5();
 
 
@@ -47,8 +51,7 @@ fn main() -> ! {
 
     let mut spi = Spi::spi1(device.SPI1, (sck, miso, mosi), mode, 22_000.hz(), clocks);
 
-
-    spi.send(b'a');
+    block!(spi.send(b'a')).unwrap();
 
     loop {
 
