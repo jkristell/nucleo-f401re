@@ -23,6 +23,69 @@ use embedded_hal::digital::OutputPin;
 
 use nb::block;
 
+struct SegmentDisp<'a, SPI, LATCH> {
+    back_buffer : [u8;4],
+    spi : &'a mut SPI,
+    latch : &'a mut LATCH,
+    current_segment : u8,
+}
+
+impl<'a, SPI, LATCH> SegmentDisp<'a, SPI, LATCH>
+    where SPI : hal_spi::Write<u8>,
+          LATCH: OutputPin,
+{
+
+    pub fn new(spi : &'a mut SPI, latch : &'a mut LATCH) -> Self {
+        Self {back_buffer : [0;4], spi, latch, current_segment : 0}
+    }
+
+    pub fn refresh<DELAY>(&mut self, delay :  &mut DELAY) -> Result<(), SPI::Error>
+        where DELAY : DelayUs<u16>,
+    {
+        let curr_buff:[u8;2] = [self.back_buffer[self.current_segment as usize], 1 << self.current_segment];
+
+        self.current_segment = if (self.current_segment == 3) {
+            0
+        } else {
+            self.current_segment + 1
+        };
+
+
+        self.latch.set_low();
+
+        let r = self.spi.write(&curr_buff);
+        delay.delay_us(500);
+
+        self.latch.set_high();
+
+        r
+    }
+
+    pub fn set_buf(&mut self, buf:[char; 4])
+    {
+        for (i, c) in buf.iter().enumerate() {
+            self.back_buffer[i] = Self::char_to_segment_code(*c);
+        }
+    }
+
+    fn char_to_segment_code(c : char) -> u8 {
+        match c {
+            '0' => 0b1100_0000,
+            '1' => 0b1111_1001,
+            '2' => 0b1010_0100,
+            '3' => 0b1011_0000,
+            '4' => 0b1001_1001,
+            '5' => 0b1001_0010,
+            '6' => 0b1000_0010,
+            '7' => 0b1111_1000,
+            '8' => 0b1000_0000,
+            '9' => 0b1001_1000,
+            '.' => 0b0111_1111,
+            _ => 0x00
+        }
+    } 
+}
+
 
 fn write_buf<SPI, LATCH, DELAY>(spi: &mut SPI, 
                                 latch: &mut LATCH,
@@ -41,7 +104,6 @@ where SPI: hal_spi::Write<u8>,
 
     r
 }
-
 
 #[entry]
 fn main() -> ! {
@@ -76,98 +138,16 @@ fn main() -> ! {
         phase: spi::Phase::CaptureOnFirstTransition,
     };
 
-
     let mut spi = Spi::spi1(device.SPI1, (sck, miso, mosi), mode, 100_000.hz(), clocks);
 
-
-    let numbers: [u8; 10] = [0b1100_0000,
-                            0b1111_1001,
-                            0b1010_0100,
-                            0b1011_0000,
-                            0b1001_1001,
-                            0b1001_0010,
-
-                            0b1000_0010,
-                            0b1111_1000,
-                            0b1000_0000,
-                            0b1001_1000,
-    
-    ];
+    let mut segment_display = SegmentDisp::new(&mut spi, &mut latch);
+    segment_display.set_buf(['4','2','4','2']);
 
     loop {
-
-        let mut backbuf: [u8; 4] = [0; 4];
-
-        backbuf[0] = numbers[1];
-        backbuf[1] = numbers[2];
-        backbuf[2] = numbers[3];
-        backbuf[3] = numbers[4];
-
-        let mut i: u8 = 0;
-        let mut j: u8 = 0;
-        loop {
-            
-            let buf = if(j == 0) {
-                j = 1;
-                [0,0]
-            } else {
-                j -= 1;
-                i = i + 1 & 0b11;
-                [backbuf[i as usize], 1 << i]
-            };
-
-            //let buf = if i & 1 == 1 {
-            //    [0, 0]
-            //} else {
-            //    [backbuf[i as usize], 1 << i]
-            //};
-
-
-
-            write_buf(&mut spi, &mut latch, &mut delay, buf).unwrap();
-
-            //delay.delay_ms(10_u16);
-
-           // i = i + 1 & 0b11;
-
-        }
+        segment_display.refresh(&mut delay);
     }
 
 
 }
 
-
-/*
-    latch.set_low();
-    block!(spi.send(0b1111_1001)).unwrap();
-    let _ = block!(spi.read()).unwrap();
-    block!(spi.send(0b0000_1111)).unwrap();
-    let _ = block!(spi.read()).unwrap();
-    delay.delay_ms(1u16);
-    latch.set_high();
-*/
-
-
-    /*
-
-    latch.set_low();
-    block!(spi.send(0b0000_1101)).unwrap();
-    block!(spi.send(0b0010_0001)).unwrap();
-    latch.set_high();
-
-    delay.delay_ms(10u16);
-    //let buf: [u8; 2] = [0b0100_0000, 0b0000_1101];
-    // let buf: [u8; 2] = [0xf0, 0x0A];
-    // spi.write(&buf).unwrap();
-
-    */
-    /*
-    block!(spi.send(0b0100_0000)).unwrap();
-    let _ = block!(spi.read()).unwrap();
-    block!(spi.send(0b0000_1101)).unwrap();
-    let _ = block!(spi.read()).unwrap();
-    */
-    //spi.write(&buf).unwrap();
-    //
-    //
 
