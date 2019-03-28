@@ -38,7 +38,13 @@ nb = "0.1.1"
 hd44780-driver = "0.3.0"
 cortex-m-semihosting = "0.3"
 panic-semihosting = "0.5.1"
-cortex-m-rtfm = "0.4.2"
+
+[dev-dependencies.cortex-m-rtfm]
+version = "0.4.2"
+features = ["timer-queue"]
+
+[dev-dependencies.segment-display]
+git = "https://github.com/jkristell/segment-display.git"
 
 [features]
 default = ["rt"]
