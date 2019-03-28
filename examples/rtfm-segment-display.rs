@@ -123,22 +123,20 @@ const APP: () = {
     fn write_display() {
         match *resources.STATE {
             State::Paus => resources.DISPLAY.write_str("PAUS"),
-            State::Play => resources.DISPLAY.write_str("PLAY"),
+            State::Play => resources.DISPLAY.write_str("Play"),
             State::CountUp => {
                 resources.DISPLAY.write_number(*resources.COUNTER);
                 if *resources.COUNTER == 9999 {
                     *resources.COUNTER = 0;
-                } else {
-                    *resources.COUNTER += 1;
                 }
+                *resources.COUNTER += 1;
             }
             State::CountDown => {
                 resources.DISPLAY.write_number(*resources.COUNTER);
                 if *resources.COUNTER == 0 {
                     *resources.COUNTER = 9999;
-                } else {
-                    *resources.COUNTER -= 1;
                 }
+                *resources.COUNTER -= 1;
             }
         };
 
