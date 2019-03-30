@@ -44,7 +44,7 @@ version = "0.4.2"
 features = ["timer-queue"]
 
 [dev-dependencies.segment-display]
-git = "https://github.com/jkristell/segment-display.git"
+version = "0.1.0"
 
 [features]
 default = ["rt"]
