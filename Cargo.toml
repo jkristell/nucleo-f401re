@@ -32,6 +32,7 @@ default-features = false
 features = ["rt", "stm32f401"]
 #version = "0.3.0"
 git = "https://github.com/stm32-rs/stm32f4xx-hal.git"
+rev = "99d0fbbffe02fa7dc311363b974b2161fea8bb1e"
 
 [dev-dependencies]
 nb = "0.1.1"
