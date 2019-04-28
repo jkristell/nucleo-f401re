@@ -6,7 +6,7 @@ extern crate cortex_m_rt;
 extern crate panic_semihosting;
 extern crate nucleo_f401re as board;
 
-use core::sync::atomic::{AtomicBool, Ordering, ATOMIC_BOOL_INIT};
+use core::sync::atomic::{AtomicBool, Ordering};
 
 use cortex_m_rt::entry;
 
@@ -17,7 +17,7 @@ use board::Interrupt;
 
 use cortex_m::peripheral::Peripherals;
 
-static SIGNAL: AtomicBool = ATOMIC_BOOL_INIT;
+static SIGNAL: AtomicBool = AtomicBool::new(false);
 
 #[entry]
 fn main() -> ! {
