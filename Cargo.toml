@@ -45,6 +45,9 @@ features = ["timer-queue"]
 [dev-dependencies.segment-display]
 version = "0.1.0"
 
+[dev-dependencies.tpa2016]
+path = "../../tpa2016"
+
 [features]
 default = ["rt"]
 rt = []
