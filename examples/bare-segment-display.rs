@@ -15,14 +15,14 @@ use board::spi::{self, Spi};
 use cortex_m::peripheral::Peripherals;
 
 use board::gpio::{Edge, ExtiPin};
-use core::sync::atomic::{AtomicUsize, Ordering, ATOMIC_USIZE_INIT};
+use core::sync::atomic::{AtomicUsize, Ordering};
 
 use segment_display::SegmentDisplay;
 
 use board::hal::interrupt;
 use board::Interrupt;
 
-static SIGNAL: AtomicUsize = ATOMIC_USIZE_INIT;
+static SIGNAL: AtomicUsize = AtomicUsize::new(0);
 
 #[entry]
 fn main() -> ! {
