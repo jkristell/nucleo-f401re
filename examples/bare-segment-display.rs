@@ -1,26 +1,24 @@
 #![no_main]
 #![no_std]
 
-extern crate cortex_m;
-extern crate cortex_m_rt;
-extern crate nucleo_f401re as board;
-extern crate panic_semihosting;
+use core::sync::atomic::{AtomicUsize, Ordering};
 
+use panic_semihosting as _;
 use cortex_m_rt::entry;
-
-use board::hal::delay::Delay;
-use board::hal::prelude::*;
-use board::hal::stm32;
-use board::spi::{self, Spi};
 use cortex_m::peripheral::Peripherals;
 
-use board::gpio::{Edge, ExtiPin};
-use core::sync::atomic::{AtomicUsize, Ordering};
+use nucleo_f401re::{
+    gpio::{Edge, ExtiPin},
+    hal::interrupt,
+    hal::delay::Delay,
+    hal::prelude::*,
+    hal::stm32,
+    Interrupt,
+    spi::{self, Spi},
+};
 
 use segment_display::SegmentDisplay;
 
-use board::hal::interrupt;
-use board::Interrupt;
 
 static SIGNAL: AtomicUsize = AtomicUsize::new(0);
 
