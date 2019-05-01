@@ -5,10 +5,11 @@ use cortex_m_rt::entry;
 use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
 
-use nucleo_f401re as board;
-use board::hal::prelude::*;
-use board::hal::stm32;
-use board::hal::i2c::I2c;
+use nucleo_f401re::{
+    hal::prelude::*,
+    hal::stm32,
+    hal::i2c::I2c,
+};
 
 use tpa2016d2::Tpa2016d2;
 

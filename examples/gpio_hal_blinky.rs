@@ -1,19 +1,15 @@
 #![no_main]
 #![no_std]
 
-extern crate cortex_m;
-extern crate cortex_m_rt;
-extern crate panic_semihosting;
-
-extern crate nucleo_f401re as board;
-
 use cortex_m_rt::entry;
-
-use board::hal::delay::Delay;
-use board::hal::prelude::*;
-use board::hal::stm32;
-
 use cortex_m::peripheral::Peripherals;
+use panic_semihosting as _;
+
+use nucleo_f401re::{
+    hal::delay::Delay,
+    hal::prelude::*,
+    hal::stm32,
+};
 
 #[entry]
 fn main() -> ! {

@@ -1,21 +1,19 @@
 #![no_main]
 #![no_std]
 
-extern crate cortex_m;
-extern crate cortex_m_rt;
-extern crate panic_semihosting;
-extern crate nucleo_f401re as board;
-
 use core::sync::atomic::{AtomicBool, Ordering};
 
 use cortex_m_rt::entry;
-
-use board::gpio::{Edge, ExtiPin};
-use board::hal::prelude::*;
-use board::hal::{interrupt, stm32};
-use board::Interrupt;
-
 use cortex_m::peripheral::Peripherals;
+use panic_semihosting as _;
+
+use nucleo_f401re::{
+    gpio::{Edge, ExtiPin},
+    hal::prelude::*,
+    hal::{interrupt, stm32},
+    Interrupt,
+};
+
 
 static SIGNAL: AtomicBool = AtomicBool::new(false);
 
