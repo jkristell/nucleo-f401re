@@ -1,23 +1,25 @@
 #![no_main]
 #![no_std]
 
-extern crate nucleo_f401re as board;
-extern crate panic_semihosting;
-
-use board::hal::gpio::{
-    gpioa::PA5,
-    gpiob::{PB3, PB4, PB5},
-    gpioc::PC13,
-    Alternate, Edge, ExtiPin, Input, Output, PullDown, PushPull, AF5,
-};
-use board::hal::stm32::{self, SPI1};
-use board::prelude::*;
-use board::spi::{self, Spi};
-
+use panic_semihosting as _;
 use cortex_m_semihosting::hprintln;
+
+use nucleo_f401re:: {
+    hal::gpio::{
+        gpioa::PA5,
+        gpiob::{PB3, PB4, PB5},
+        gpioc::PC13,
+        Alternate, Edge, ExtiPin, Input, Output, PullDown, PushPull, AF5,
+    },
+    hal::stm32::{self, SPI1},
+    prelude::*,
+    spi::{self, Spi},
+};
+
 use rtfm::{app, Instant};
 
 use segment_display::SegmentDisplay;
+
 
 const CPU_FREQ: u32 = 84_000_000;
 
@@ -40,7 +42,7 @@ impl State {
     }
 }
 
-#[app(device = board::hal::stm32)]
+#[app(device = nucleo_f401re::hal::stm32)]
 const APP: () = {
     // Late resources
     static mut EXTI: stm32::EXTI = ();
