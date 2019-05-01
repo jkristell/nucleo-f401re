@@ -1,51 +1,51 @@
 #![no_main]
 #![no_std]
 
-extern crate cortex_m;
-extern crate cortex_m_rt;
-extern crate panic_semihosting;
-extern crate nucleo_f401re as board;
-
-use core::sync::atomic::{AtomicBool, Ordering};
-
 use cortex_m_rt::entry;
+use cortex_m_semihosting::hprintln;
+use panic_semihosting as _;
 
-use board::gpio::{Edge, ExtiPin};
+use nucleo_f401re as board;
 use board::hal::prelude::*;
-use board::hal::{interrupt, stm32};
-use board::Interrupt;
+use board::hal::stm32;
+use board::hal::i2c::I2c;
 
-use cortex_m::peripheral::Peripherals;
-use stm32f4xx_hal::i2c::I2c;
-
-use tpa2016::Tpa2016;
+use tpa2016d2::Tpa2016d2;
 
 #[entry]
 fn main() -> ! {
     // The Stm32 peripherals
-    let mut device = stm32::Peripherals::take().unwrap();
-    // The Cortex-m peripherals
-    let mut core = Peripherals::take().unwrap();
+    let device = stm32::Peripherals::take().unwrap();
 
-    // Enable the clock for the SYSCFG
-    device.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
-
-    // Constrain clock registers
     let rcc = device.RCC.constrain();
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
     let gpiob = device.GPIOB.split();
-    let scl = gpiob.pb8.into_alternate_af4();
-    let sda = gpiob.pb9.into_alternate_af4();
+    let scl = gpiob.pb8
+        .into_alternate_af4()
+        .internal_pull_up(true)
+        .set_open_drain();
 
-    let i2c = I2c::i2c1(device.I2C1,
-                        (scl, sda),
-                        40.khz(),
-                        clocks);
+    let sda = gpiob.pb9
+        .into_alternate_af4()
+        .internal_pull_up(true)
+        .set_open_drain();
 
-    let mut tpa = Tpa2016::new(i2c);
+    let i2c = I2c::i2c1(device.I2C1, (scl, sda), 200.khz(), clocks);
 
-    tpa.gain(40).unwrap();
+    let mut tpa = Tpa2016d2::new(i2c);
+
+    // Print the registers
+    for i in 1..=7 {
+        let v = tpa.read_device_reg(i).unwrap();
+        hprintln!("{}: {}", i, v).unwrap();
+    }
+
+    // Set the gain
+    tpa.gain(32).unwrap();
+
+    // Should print 32
+    hprintln!("gain: {}", tpa.read_device_reg(5).unwrap()).unwrap();
 
     loop {
     }
