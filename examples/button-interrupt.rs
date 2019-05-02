@@ -9,9 +9,9 @@ use panic_semihosting as _;
 
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},
+    hal::interrupt,
     hal::prelude::*,
-    hal::{interrupt, stm32},
-    Interrupt,
+    stm32, Interrupt,
 };
 
 static SIGNAL: AtomicBool = AtomicBool::new(false);

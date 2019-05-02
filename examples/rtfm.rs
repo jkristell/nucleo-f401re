@@ -5,10 +5,9 @@ use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
-    gpio::{Edge, ExtiPin},
-    hal::gpio::{gpioa::PA5, gpioc::PC13, Input, Output, PullDown, PushPull},
-    hal::stm32,
+    gpio::{gpioa::PA5, gpioc::PC13, Edge, ExtiPin, Input, Output, PullDown, PushPull},
     prelude::*,
+    stm32,
 };
 
 use rtfm::app;

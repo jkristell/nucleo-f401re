@@ -5,15 +5,15 @@ use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
-    hal::gpio::{
+    gpio::{
         gpioa::PA5,
         gpiob::{PB3, PB4, PB5},
         gpioc::PC13,
         Alternate, Edge, ExtiPin, Input, Output, PullDown, PushPull, AF5,
     },
-    hal::stm32::{self, SPI1},
     prelude::*,
     spi::{self, Spi},
+    stm32::{self, SPI1},
 };
 
 use rtfm::{app, Instant};

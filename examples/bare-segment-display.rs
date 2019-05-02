@@ -8,13 +8,12 @@ use cortex_m_rt::entry;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
+    delay::Delay,
     gpio::{Edge, ExtiPin},
-    hal::delay::Delay,
     hal::interrupt,
-    hal::prelude::*,
-    hal::stm32,
+    prelude::*,
     spi::{self, Spi},
-    Interrupt,
+    stm32, Interrupt,
 };
 
 use segment_display::SegmentDisplay;

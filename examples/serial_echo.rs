@@ -4,7 +4,7 @@
 use cortex_m_rt::entry;
 use panic_semihosting as _;
 
-use nucleo_f401re::hal::{
+use nucleo_f401re::{
     prelude::*,
     serial::{config::Config, Serial},
     stm32,

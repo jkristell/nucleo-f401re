@@ -5,7 +5,7 @@ use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
 use panic_semihosting as _;
 
-use nucleo_f401re::{hal::delay::Delay, hal::prelude::*, hal::stm32};
+use nucleo_f401re::{delay::Delay, prelude::*, stm32};
 
 #[entry]
 fn main() -> ! {
