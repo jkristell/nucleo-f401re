@@ -10,7 +10,7 @@ use panic_semihosting as _;
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},
     hal::interrupt,
-    hal::prelude::*,
+    prelude::*,
     stm32, Interrupt,
 };
 
