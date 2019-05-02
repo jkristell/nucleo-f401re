@@ -5,11 +5,7 @@ use cortex_m_rt::entry;
 use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
 
-use nucleo_f401re::{
-    hal::prelude::*,
-    hal::stm32,
-    hal::i2c::I2c,
-};
+use nucleo_f401re::{hal::i2c::I2c, hal::prelude::*, hal::stm32};
 
 use tpa2016d2::Tpa2016d2;
 
@@ -22,12 +18,14 @@ fn main() -> ! {
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
     let gpiob = device.GPIOB.split();
-    let scl = gpiob.pb8
+    let scl = gpiob
+        .pb8
         .into_alternate_af4()
         .internal_pull_up(true)
         .set_open_drain();
 
-    let sda = gpiob.pb9
+    let sda = gpiob
+        .pb9
         .into_alternate_af4()
         .internal_pull_up(true)
         .set_open_drain();
@@ -48,8 +46,5 @@ fn main() -> ! {
     // Should print 32
     hprintln!("gain: {}", tpa.read_device_reg(5).unwrap()).unwrap();
 
-    loop {
-    }
+    loop {}
 }
-
-

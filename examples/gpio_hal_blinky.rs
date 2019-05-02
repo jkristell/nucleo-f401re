@@ -1,15 +1,11 @@
 #![no_main]
 #![no_std]
 
-use cortex_m_rt::entry;
 use cortex_m::peripheral::Peripherals;
+use cortex_m_rt::entry;
 use panic_semihosting as _;
 
-use nucleo_f401re::{
-    hal::delay::Delay,
-    hal::prelude::*,
-    hal::stm32,
-};
+use nucleo_f401re::{hal::delay::Delay, hal::prelude::*, hal::stm32};
 
 #[entry]
 fn main() -> ! {
@@ -45,5 +41,4 @@ fn main() -> ! {
         delay.delay_ms(500_u16);
         delay.delay_ms(500_u16);
     }
-
 }

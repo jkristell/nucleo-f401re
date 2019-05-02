@@ -3,22 +3,21 @@
 
 use core::sync::atomic::{AtomicUsize, Ordering};
 
-use cortex_m_rt::entry;
 use cortex_m::peripheral::Peripherals;
+use cortex_m_rt::entry;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},
-    hal::interrupt,
     hal::delay::Delay,
+    hal::interrupt,
     hal::prelude::*,
     hal::stm32,
-    Interrupt,
     spi::{self, Spi},
+    Interrupt,
 };
 
 use segment_display::SegmentDisplay;
-
 
 static SIGNAL: AtomicUsize = AtomicUsize::new(0);
 

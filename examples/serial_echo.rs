@@ -1,19 +1,16 @@
 #![no_main]
 #![no_std]
 
-use panic_semihosting as _;
 use cortex_m_rt::entry;
+use panic_semihosting as _;
 
-use nucleo_f401re::{
-    hal::{
-        prelude::*,
-        stm32,
-        serial::{Serial, config::Config},
-    },
+use nucleo_f401re::hal::{
+    prelude::*,
+    serial::{config::Config, Serial},
+    stm32,
 };
 
 use nb::block;
-
 
 #[entry]
 fn main() -> ! {
@@ -26,8 +23,7 @@ fn main() -> ! {
     let tx = gpioa.pa2.into_alternate_af7();
     let rx = gpioa.pa3.into_alternate_af7();
 
-    let config = Config::default()
-        .baudrate(115200.bps());
+    let config = Config::default().baudrate(115200.bps());
 
     let serial = Serial::usart2(device.USART2, (tx, rx), config, clocks).unwrap();
 
@@ -38,5 +34,4 @@ fn main() -> ! {
         let received = block!(rx.read()).unwrap();
         block!(tx.write(received)).ok();
     }
-
 }

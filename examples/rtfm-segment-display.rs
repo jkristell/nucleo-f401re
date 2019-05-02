@@ -1,10 +1,10 @@
 #![no_main]
 #![no_std]
 
-use panic_semihosting as _;
 use cortex_m_semihosting::hprintln;
+use panic_semihosting as _;
 
-use nucleo_f401re:: {
+use nucleo_f401re::{
     hal::gpio::{
         gpioa::PA5,
         gpiob::{PB3, PB4, PB5},
@@ -19,7 +19,6 @@ use nucleo_f401re:: {
 use rtfm::{app, Instant};
 
 use segment_display::SegmentDisplay;
-
 
 const CPU_FREQ: u32 = 84_000_000;
 
@@ -48,7 +47,10 @@ const APP: () = {
     static mut EXTI: stm32::EXTI = ();
     static mut BUTTON: PC13<Input<PullDown>> = ();
     static mut LED: PA5<Output<PushPull>> = ();
-    static mut DISPLAY: SegmentDisplay<Spi<SPI1, (PB3<Alternate<AF5>>, spi::NoMiso, PB5<Alternate<AF5>>)>, PB4<Output<PushPull>>> = ();
+    static mut DISPLAY: SegmentDisplay<
+        Spi<SPI1, (PB3<Alternate<AF5>>, spi::NoMiso, PB5<Alternate<AF5>>)>,
+        PB4<Output<PushPull>>,
+    > = ();
     static mut COUNTER: usize = 0;
     static mut STATE: State = State::Paus;
 
@@ -103,7 +105,9 @@ const APP: () = {
         // The segment refresher
         schedule.refresh(now + (CPU_FREQ / 8000).cycles()).unwrap();
 
-        schedule.write_display(now + (CPU_FREQ / 10).cycles()).unwrap();
+        schedule
+            .write_display(now + (CPU_FREQ / 10).cycles())
+            .unwrap();
 
         hprintln!("init done").unwrap();
 

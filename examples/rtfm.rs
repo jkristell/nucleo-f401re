@@ -1,25 +1,20 @@
 #![no_main]
 #![no_std]
 
-use panic_semihosting as _;
 use cortex_m_semihosting::hprintln;
+use panic_semihosting as _;
 
 use nucleo_f401re::{
-    hal::stm32,
-    hal::gpio::{
-        gpioa::PA5, gpioc::PC13,
-        Input, Output, PushPull, PullDown,
-    },
-    prelude::*,
     gpio::{Edge, ExtiPin},
+    hal::gpio::{gpioa::PA5, gpioc::PC13, Input, Output, PullDown, PushPull},
+    hal::stm32,
+    prelude::*,
 };
 
 use rtfm::app;
 
-
 #[app(device = nucleo_f401re::hal::stm32)]
 const APP: () = {
-
     // Late resources
     static mut EXTI: stm32::EXTI = ();
     static mut BUTTON: PC13<Input<PullDown>> = ();

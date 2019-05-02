@@ -3,22 +3,16 @@
 
 use core::fmt::Write;
 
-use cortex_m_rt::entry;
 use cortex_m::peripheral::Peripherals;
+use cortex_m_rt::entry;
 use panic_semihosting as _;
 
-use nucleo_f401re::{
-    hal::delay::Delay,
-    hal::prelude::*,
-    hal::stm32,
-};
+use nucleo_f401re::{hal::delay::Delay, hal::prelude::*, hal::stm32};
 
 use hd44780_driver::HD44780;
 
-
 #[entry]
 fn main() -> ! {
-
     let device = stm32::Peripherals::take().unwrap();
     let core = Peripherals::take().unwrap();
 
@@ -50,7 +44,5 @@ fn main() -> ! {
     lcd.set_cursor_pos(40);
     let _ = lcd.write_str("Nucleo f401RE");
 
-    loop {
-
-    }
+    loop {}
 }
