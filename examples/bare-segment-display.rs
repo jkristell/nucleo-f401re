@@ -3,9 +3,9 @@
 
 use core::sync::atomic::{AtomicUsize, Ordering};
 
-use panic_semihosting as _;
 use cortex_m_rt::entry;
 use cortex_m::peripheral::Peripherals;
+use panic_semihosting as _;
 
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},

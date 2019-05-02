@@ -1,20 +1,23 @@
 #![no_main]
 #![no_std]
 
-extern crate panic_semihosting;
-extern crate nucleo_f401re as board;
-
+use panic_semihosting as _;
 use cortex_m_semihosting::hprintln;
-use rtfm::app;
-use board::hal::stm32;
-use board::hal::gpio::{
-    Input, Output, PushPull, PullDown,
-    gpioa::PA5, gpioc::PC13
-};
-use board::prelude::*;
-use board::gpio::{Edge, ExtiPin};
 
-#[app(device = board::hal::stm32)]
+use nucleo_f401re::{
+    hal::stm32,
+    hal::gpio::{
+        gpioa::PA5, gpioc::PC13,
+        Input, Output, PushPull, PullDown,
+    },
+    prelude::*,
+    gpio::{Edge, ExtiPin},
+};
+
+use rtfm::app;
+
+
+#[app(device = nucleo_f401re::hal::stm32)]
 const APP: () = {
 
     // Late resources
