@@ -3,17 +3,16 @@
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use cortex_m_rt::entry;
 use cortex_m::peripheral::Peripherals;
+use cortex_m_rt::entry;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},
-    hal::prelude::*,
-    hal::{interrupt, stm32},
-    Interrupt,
+    hal::interrupt,
+    prelude::*,
+    stm32, Interrupt,
 };
-
 
 static SIGNAL: AtomicBool = AtomicBool::new(false);
 
@@ -56,12 +55,11 @@ fn main() -> ! {
     }
 }
 
-
 #[interrupt]
 fn EXTI15_10() {
     // Clear the interrupt
     unsafe {
-        (*stm32::EXTI::ptr()).pr.modify(|_, w| { w.pr13().set_bit() });
+        (*stm32::EXTI::ptr()).pr.modify(|_, w| w.pr13().set_bit());
     }
     // Signal to the man loop that it should toggle the led.
     SIGNAL.store(true, Ordering::Relaxed);

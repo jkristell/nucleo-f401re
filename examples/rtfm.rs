@@ -1,22 +1,19 @@
 #![no_main]
 #![no_std]
 
-extern crate panic_semihosting;
-extern crate nucleo_f401re as board;
-
 use cortex_m_semihosting::hprintln;
-use rtfm::app;
-use board::hal::stm32;
-use board::hal::gpio::{
-    Input, Output, PushPull, PullDown,
-    gpioa::PA5, gpioc::PC13
+use panic_semihosting as _;
+
+use nucleo_f401re::{
+    gpio::{gpioa::PA5, gpioc::PC13, Edge, ExtiPin, Input, Output, PullDown, PushPull},
+    prelude::*,
+    stm32,
 };
-use board::prelude::*;
-use board::gpio::{Edge, ExtiPin};
 
-#[app(device = board::hal::stm32)]
+use rtfm::app;
+
+#[app(device = nucleo_f401re::hal::stm32)]
 const APP: () = {
-
     // Late resources
     static mut EXTI: stm32::EXTI = ();
     static mut BUTTON: PC13<Input<PullDown>> = ();
