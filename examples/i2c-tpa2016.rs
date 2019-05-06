@@ -7,7 +7,7 @@ use panic_semihosting as _;
 
 use nucleo_f401re::{i2c::I2c, prelude::*, stm32};
 
-use tpa2016d2::Tpa2016d2;
+use tpa2016d2::{Tpa2016d2, AgcPreset};
 
 #[entry]
 fn main() -> ! {
@@ -36,7 +36,7 @@ fn main() -> ! {
 
     // Print the registers
     for i in 1..=7 {
-        let v = tpa.read_device_reg(i).unwrap();
+        let v = tpa.device_reg(i).unwrap();
         hprintln!("{}: {}", i, v).unwrap();
     }
 
@@ -44,7 +44,9 @@ fn main() -> ! {
     tpa.gain(32).unwrap();
 
     // Should print 32
-    hprintln!("gain: {}", tpa.read_device_reg(5).unwrap()).unwrap();
+    hprintln!("gain: {}", tpa.device_reg(5).unwrap()).unwrap();
+
+    tpa.set_agc_preset(AgcPreset::Jazz).unwrap();
 
     loop {}
 }
