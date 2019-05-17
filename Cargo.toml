@@ -37,7 +37,7 @@ nb = "0.1.1"
 hd44780-driver = "0.3.0"
 cortex-m-semihosting = "0.3"
 panic-semihosting = "0.5.1"
-tpa2016d2 = "0.1.1"
+tpa2016d2 = "0.2.0"
 
 [dev-dependencies.cortex-m-rtfm]
 version = "0.4.2"
