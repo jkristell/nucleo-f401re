@@ -1,27 +1,27 @@
 #![no_main]
 #![no_std]
 
-use core::sync::atomic::{AtomicBool, Ordering};
 use core::cell::RefCell;
+use core::sync::atomic::{AtomicBool, Ordering};
 
-use cortex_m::peripheral::Peripherals;
 use cortex_m::interrupt::Mutex;
+use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},
     hal::{
+        gpio::{gpioc::PC13, Input, PullUp},
         interrupt,
-        gpio::{gpioc::PC13, PullUp, Input},
     },
     prelude::*,
-    stm32, Interrupt,
-    EXTI,
+    stm32, Interrupt, EXTI,
 };
 
-
+// Used to signal to the main loop that it should toggle the led
 static SIGNAL: AtomicBool = AtomicBool::new(false);
+
 static BUTTON: Mutex<RefCell<Option<PC13<Input<PullUp>>>>> = Mutex::new(RefCell::new(None));
 static EXTI: Mutex<RefCell<Option<EXTI>>> = Mutex::new(RefCell::new(None));
 
@@ -54,13 +54,15 @@ fn main() -> ! {
 
     let exti = device.EXTI;
 
-    cortex_m::interrupt::free(|cs| EXTI.borrow(cs).replace(Some(exti)));
-    cortex_m::interrupt::free(|cs| BUTTON.borrow(cs).replace(Some(button)));
+    cortex_m::interrupt::free(|cs| {
+        EXTI.borrow(cs).replace(Some(exti));
+        BUTTON.borrow(cs).replace(Some(button));
+    });
 
     // Enable the external interrupt
-    unsafe {
-        cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
-    }
+    //unsafe {
+    //    cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
+    //}
 
     loop {
         let state_change = SIGNAL.load(Ordering::Relaxed);
@@ -78,7 +80,9 @@ fn EXTI15_10() {
         let mut button = BUTTON.borrow(cs).borrow_mut();
         let mut exti = EXTI.borrow(cs).borrow_mut();
         let mut extiref = exti.as_mut().unwrap();
-        button.as_mut().unwrap()
+        button
+            .as_mut()
+            .unwrap()
             .clear_interrupt_pending_bit(&mut extiref);
     });
 
