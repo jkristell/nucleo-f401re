@@ -25,7 +25,7 @@ fn main() -> ! {
     // The Stm32 peripherals
     let mut device = stm32::Peripherals::take().unwrap();
     // The Cortex-m peripherals
-    let mut core = Peripherals::take().unwrap();
+    let core = Peripherals::take().unwrap();
 
     // Configure PC5 (User B1) as an input
     let gpioc = device.GPIOC.split();
@@ -46,7 +46,9 @@ fn main() -> ! {
     button.trigger_on_edge(&mut device.EXTI, Edge::FALLING);
 
     // Enable the external interrupt
-    core.NVIC.enable(Interrupt::EXTI15_10);
+    unsafe {
+        cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
+    }
 
     let gpiob = device.GPIOB.split();
     let sck = gpiob.pb3.into_alternate_af5();

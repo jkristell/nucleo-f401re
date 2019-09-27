@@ -60,9 +60,9 @@ fn main() -> ! {
     });
 
     // Enable the external interrupt
-    //unsafe {
-    //    cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
-    //}
+    unsafe {
+        cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
+    }
 
     loop {
         let state_change = SIGNAL.load(Ordering::Relaxed);
