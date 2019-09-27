@@ -1,10 +1,5 @@
 ## Support package for the [Nucleo-f401re](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) board.
 
-### TODO:
- - Cleanup examples
- - rename branch to 0.2.1
- - check openocd.cfg
-
 ### How to use the examples:
 
 1. Clone this repository
@@ -26,7 +21,5 @@
  * User led on PA5
  * User button on PC13
  * Serial port through ST-LINK on USART2, Tx: PA2 and Rx: PA3.
-
-
 
 This repository is based on https://github.com/therealprof/stm32f407g-disc

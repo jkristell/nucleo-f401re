@@ -86,9 +86,5 @@ fn EXTI15_10() {
             .clear_interrupt_pending_bit(&mut extiref);
     });
 
-    // unsafe {
-    //     (*stm32::EXTI::ptr()).pr.modify(|_, w| w.pr13().set_bit());
-    // }
-    // Signal to the man loop that it should toggle the led.
     SIGNAL.store(true, Ordering::Relaxed);
 }
