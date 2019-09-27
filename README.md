@@ -1,16 +1,21 @@
 ## Support package for the [Nucleo-f401re](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) board.
 
+### TODO:
+ - Cleanup examples
+ - rename branch to 0.2.1
+ - check openocd.cfg
+
 ### How to use the examples:
 
 1. Clone this repository
 
-2. Start openocd and connect to the target.
+2. Start openocd
 
  ```
- openocd -f discovery.cfg
+ openocd
  ```
 
-3. And then run the examples from another terminal.
+3. In another terminal, run your example of choice
 
  ```
  cargo run --example gpio_hal_blinky
