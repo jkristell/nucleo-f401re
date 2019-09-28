@@ -1,8 +1,6 @@
 #![no_main]
 #![no_std]
 
-#![allow(deprecated)]
-
 use core::cell::RefCell;
 
 use cortex_m::peripheral::Peripherals;
@@ -25,7 +23,7 @@ static LED: Mutex<RefCell<Option<PA5<Output<PushPull>>>>> = Mutex::new(RefCell::
 #[entry]
 fn main() -> ! {
     let p = stm32::Peripherals::take().unwrap();
-    let mut core = Peripherals::take().unwrap();
+    let _core = Peripherals::take().unwrap();
 
     // Enable the clock for the SYSCFG
     p.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
@@ -52,8 +50,8 @@ fn main() -> ! {
         TIMER.borrow(cs).replace(Some(timer));
     });
 
-    // Enable the external interrupt
-    core.NVIC.enable(Interrupt::TIM2);
+    // Enable TIM2 interrupt
+    unsafe { cortex_m::peripheral::NVIC::unmask(Interrupt::TIM2) }
 
     loop {
     }
@@ -66,6 +64,7 @@ fn TIM2() {
         (*stm32::TIM2::ptr()).sr.modify(|_, w| w.uif().clear_bit());
     }
 
+    // Toggle led
     cortex_m::interrupt::free(|cs| {
         let mut led = LED.borrow(cs).borrow_mut();
         led
