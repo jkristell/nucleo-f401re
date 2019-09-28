@@ -4,13 +4,13 @@
 
 1. Clone this repository
 
-2. Start openocd and connect to the target.
+2. Start openocd
 
  ```
- openocd -f discovery.cfg
+ openocd
  ```
 
-3. And then run the examples from another terminal.
+3. In another terminal, run your example of choice
 
  ```
  cargo run --example gpio_hal_blinky
@@ -21,7 +21,5 @@
  * User led on PA5
  * User button on PC13
  * Serial port through ST-LINK on USART2, Tx: PA2 and Rx: PA3.
-
-
 
 This repository is based on https://github.com/therealprof/stm32f407g-disc

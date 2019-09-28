@@ -1,7 +1,7 @@
 [package]
 authors = ["Johan Kristell <johan@jott.se>"]
 name = "nucleo-f401re"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2018"
 description = "Board Support crate for the STM32 NUCLEO-f401RE development board"
 repository = "https://github.com/jkristell/nucleo-f401re"
@@ -25,7 +25,7 @@ cortex-m-rt = "0.6.7"
 
 [dependencies.embedded-hal]
 features = ["unproven"]
-version = "0.2.2"
+version = "0.2.3"
 
 [dependencies.stm32f4xx-hal]
 default-features = false

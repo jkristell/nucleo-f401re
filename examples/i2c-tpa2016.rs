@@ -7,7 +7,7 @@ use panic_semihosting as _;
 
 use nucleo_f401re::{i2c::I2c, prelude::*, stm32};
 
-use tpa2016d2::{Tpa2016d2, AgcPreset};
+use tpa2016d2::{AgcPreset, Tpa2016d2};
 
 #[entry]
 fn main() -> ! {
