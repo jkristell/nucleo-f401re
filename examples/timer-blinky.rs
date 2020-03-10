@@ -3,19 +3,19 @@
 
 use core::cell::RefCell;
 
-use cortex_m::peripheral::Peripherals;
 use cortex_m::interrupt::Mutex;
+use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
 use panic_semihosting as _;
 
 use nucleo_f401re::{
     hal::interrupt,
-    Interrupt,
     prelude::*,
     stm32::{self, TIM2},
-    timer::{Timer, Event},
+    timer::{Event, Timer},
+    Interrupt,
 };
-use stm32f4xx_hal::gpio::{gpioa::PA5, PushPull, Output};
+use stm32f4xx_hal::gpio::{gpioa::PA5, Output, PushPull};
 
 static TIMER: Mutex<RefCell<Option<Timer<TIM2>>>> = Mutex::new(RefCell::new(None));
 static LED: Mutex<RefCell<Option<PA5<Output<PushPull>>>>> = Mutex::new(RefCell::new(None));
@@ -53,8 +53,7 @@ fn main() -> ! {
     // Enable TIM2 interrupt
     unsafe { cortex_m::peripheral::NVIC::unmask(Interrupt::TIM2) }
 
-    loop {
-    }
+    loop {}
 }
 
 #[interrupt]
@@ -67,11 +66,6 @@ fn TIM2() {
     // Toggle led
     cortex_m::interrupt::free(|cs| {
         let mut led = LED.borrow(cs).borrow_mut();
-        led
-            .as_mut()
-            .unwrap()
-            .toggle()
-            .ok();
+        led.as_mut().unwrap().toggle().ok();
     });
 }
-

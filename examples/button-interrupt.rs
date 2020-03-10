@@ -16,7 +16,7 @@ use nucleo_f401re::{
         interrupt,
     },
     prelude::*,
-    stm32, Interrupt
+    stm32, Interrupt,
 };
 
 // Used to signal to the main loop that it should toggle the led
@@ -74,10 +74,7 @@ fn EXTI15_10() {
     // Clear the interrupt
     cortex_m::interrupt::free(|cs| {
         let mut button = BUTTON.borrow(cs).borrow_mut();
-        button
-            .as_mut()
-            .unwrap()
-            .clear_interrupt_pending_bit();
+        button.as_mut().unwrap().clear_interrupt_pending_bit();
     });
 
     SIGNAL.store(true, Ordering::SeqCst);

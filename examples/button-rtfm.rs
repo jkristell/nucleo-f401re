@@ -14,7 +14,6 @@ use rtfm::app;
 
 #[app(device = nucleo_f401re::hal::stm32, peripherals = true)]
 const APP: () = {
-
     struct Resources {
         button: PC13<Input<PullDown>>,
         led: PA5<Output<PushPull>>,
@@ -22,7 +21,6 @@ const APP: () = {
 
     #[init]
     fn init(ctx: init::Context) -> init::LateResources {
-
         // Device specific peripherals
         let mut device = ctx.device;
 
@@ -48,10 +46,7 @@ const APP: () = {
 
         hprintln!("init done").unwrap();
 
-        init::LateResources {
-            led,
-            button,
-        }
+        init::LateResources { led, button }
     }
 
     #[idle]
@@ -64,7 +59,6 @@ const APP: () = {
 
     #[task(binds = EXTI15_10, resources = [led, button])]
     fn on_button_press(ctx: on_button_press::Context) {
-
         let on_button_press::Resources { led, button } = ctx.resources;
 
         // Clear the interrupt

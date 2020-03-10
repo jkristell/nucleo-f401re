@@ -29,7 +29,6 @@ static SIGNAL: AtomicUsize = AtomicUsize::new(0);
 
 static BUTTON: Mutex<RefCell<Option<PC13<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
 
-
 #[entry]
 fn main() -> ! {
     // The Stm32 peripherals
@@ -102,10 +101,7 @@ fn EXTI15_10() {
     // Clear the interrupt
     cortex_m::interrupt::free(|cs| {
         let mut button = BUTTON.borrow(cs).borrow_mut();
-        button
-            .as_mut()
-            .unwrap()
-            .clear_interrupt_pending_bit();
+        button.as_mut().unwrap().clear_interrupt_pending_bit();
     });
     // Signal to the man loop that it should toggle the led.
     SIGNAL.fetch_add(1, Ordering::SeqCst);
