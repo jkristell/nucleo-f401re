@@ -70,7 +70,8 @@ fn TIM2() {
         led
             .as_mut()
             .unwrap()
-            .toggle();
+            .toggle()
+            .ok();
     });
 }
 

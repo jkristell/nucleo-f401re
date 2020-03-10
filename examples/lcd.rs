@@ -8,8 +8,9 @@ use cortex_m_rt::entry;
 use panic_semihosting as _;
 
 use nucleo_f401re::{delay::Delay, prelude::*, stm32};
-
+use embedded_hal::digital::v1_compat::OldOutputPin;
 use hd44780_driver::HD44780;
+
 
 #[entry]
 fn main() -> ! {
@@ -34,6 +35,13 @@ fn main() -> ! {
 
     // Get delay provider
     let delay = Delay::new(core.SYST, clocks);
+
+    let rs = OldOutputPin::from(rs);
+    let en = OldOutputPin::from(en);
+    let d4 = OldOutputPin::from(d4);
+    let d5 = OldOutputPin::from(d5);
+    let d6 = OldOutputPin::from(d6);
+    let d7 = OldOutputPin::from(d7);
 
     // Setup the driver
     let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, delay);
