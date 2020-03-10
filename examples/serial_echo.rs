@@ -23,7 +23,7 @@ fn main() -> ! {
     let tx = gpioa.pa2.into_alternate_af7();
     let rx = gpioa.pa3.into_alternate_af7();
 
-    let config = Config::default().baudrate(115200.bps());
+    let config = Config::default().baudrate(115_200.bps());
 
     let serial = Serial::usart2(device.USART2, (tx, rx), config, clocks).unwrap();
 
