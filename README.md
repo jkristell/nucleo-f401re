@@ -4,6 +4,11 @@
 
 1. Clone this repository
 
+#### Alternative 1: Using Probe.rs
+
+1. ```cargo flash --chip stm32f401re --example button-interrupt```
+
+#### Alternative 2: Using openocd
 2. Start openocd
 
  ```
