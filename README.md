@@ -8,6 +8,8 @@
 
 1. ```cargo flash --chip stm32f401re --example button-interrupt```
 
+NOTE: The examples that uses semihosting doesn't work with cargo flash yet.
+
 #### Alternative 2: Using openocd
 2. Start openocd
 
