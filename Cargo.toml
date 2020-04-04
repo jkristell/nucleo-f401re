@@ -1,7 +1,7 @@
 [package]
 authors = ["Johan Kristell <johan@jott.se>"]
 name = "nucleo-f401re"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2018"
 description = "Board Support crate for the STM32 NUCLEO-f401RE development board"
 repository = "https://github.com/jkristell/nucleo-f401re"
