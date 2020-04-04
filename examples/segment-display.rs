@@ -18,16 +18,16 @@ use nucleo_f401re::{
     },
     prelude::*,
     spi::{self, Spi},
-    stm32, Interrupt, EXTI,
+    stm32, Interrupt,
 };
+
+use embedded_hal::digital::v1_compat::OldOutputPin;
 
 use segment_display::SegmentDisplay;
 
 static SIGNAL: AtomicUsize = AtomicUsize::new(0);
 
 static BUTTON: Mutex<RefCell<Option<PC13<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
-static EXTI: Mutex<RefCell<Option<EXTI>>> = Mutex::new(RefCell::new(None));
-
 
 #[entry]
 fn main() -> ! {
@@ -54,12 +54,9 @@ fn main() -> ! {
     button.enable_interrupt(&mut device.EXTI);
     button.trigger_on_edge(&mut device.EXTI, Edge::FALLING);
 
-    let exti = device.EXTI;
     cortex_m::interrupt::free(|cs| {
-        EXTI.borrow(cs).replace(Some(exti));
         BUTTON.borrow(cs).replace(Some(button));
     });
-
 
     // Enable the external interrupt
     unsafe {
@@ -88,10 +85,10 @@ fn main() -> ! {
         clocks,
     );
 
-    let mut segment_display = SegmentDisplay::new(spi, latch);
+    let mut segment_display = SegmentDisplay::new(spi, OldOutputPin::from(latch));
 
     loop {
-        let v = SIGNAL.load(Ordering::Relaxed);
+        let v = SIGNAL.load(Ordering::SeqCst);
         segment_display.write_number(v);
         segment_display.refresh().unwrap();
 
@@ -104,13 +101,8 @@ fn EXTI15_10() {
     // Clear the interrupt
     cortex_m::interrupt::free(|cs| {
         let mut button = BUTTON.borrow(cs).borrow_mut();
-        let mut exti = EXTI.borrow(cs).borrow_mut();
-        let mut extiref = exti.as_mut().unwrap();
-        button
-            .as_mut()
-            .unwrap()
-            .clear_interrupt_pending_bit(&mut extiref);
+        button.as_mut().unwrap().clear_interrupt_pending_bit();
     });
     // Signal to the man loop that it should toggle the led.
-    SIGNAL.fetch_add(1, Ordering::Relaxed);
+    SIGNAL.fetch_add(1, Ordering::SeqCst);
 }

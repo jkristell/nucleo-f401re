@@ -1,5 +1,6 @@
 #![no_main]
 #![no_std]
+#![allow(deprecated)]
 
 use cortex_m_semihosting::hprintln;
 use panic_semihosting as _;
@@ -7,25 +8,21 @@ use panic_semihosting as _;
 use nucleo_f401re::{
     gpio::{gpioa::PA5, gpioc::PC13, Edge, ExtiPin, Input, Output, PullDown, PushPull},
     prelude::*,
-    stm32,
 };
 
 use rtfm::app;
 
-#[app(device = nucleo_f401re::hal::stm32)]
+#[app(device = nucleo_f401re::hal::stm32, peripherals = true)]
 const APP: () = {
-    // Late resources
-    static mut EXTI: stm32::EXTI = ();
-    static mut BUTTON: PC13<Input<PullDown>> = ();
-    static mut LED: PA5<Output<PushPull>> = ();
+    struct Resources {
+        button: PC13<Input<PullDown>>,
+        led: PA5<Output<PushPull>>,
+    }
 
     #[init]
-    fn init() {
-        // Cortex-M peripherals
-        let _core: rtfm::Peripherals = core;
-
+    fn init(ctx: init::Context) -> init::LateResources {
         // Device specific peripherals
-        let mut device: stm32::Peripherals = device;
+        let mut device = ctx.device;
 
         // Configure PC13 (User Button) as an input
         let gpioc = device.GPIOC.split();
@@ -49,24 +46,24 @@ const APP: () = {
 
         hprintln!("init done").unwrap();
 
-        EXTI = device.EXTI;
-        LED = led;
-        BUTTON = button;
+        init::LateResources { led, button }
     }
 
     #[idle]
-    fn idle() -> ! {
+    fn idle(_ctx: idle::Context) -> ! {
         hprintln!("idle").unwrap();
 
         // The idle loop
         loop {}
     }
 
-    #[interrupt(binds = EXTI15_10, resources = [EXTI, LED, BUTTON])]
-    fn on_button_press() {
+    #[task(binds = EXTI15_10, resources = [led, button])]
+    fn on_button_press(ctx: on_button_press::Context) {
+        let on_button_press::Resources { led, button } = ctx.resources;
+
         // Clear the interrupt
-        resources.BUTTON.clear_interrupt_pending_bit(resources.EXTI);
+        button.clear_interrupt_pending_bit();
         // Toggle the led
-        resources.LED.toggle();
+        led.toggle().ok();
     }
 };
