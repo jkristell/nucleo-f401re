@@ -47,10 +47,8 @@ version = "0.5"
 version = "0.1.0"
 
 [dev-dependencies.epd-waveshare]
-git = "https://github.com/caemor/epd-waveshare.git"
-default-features = false
+version = "0.4.0"
 features = ["graphics"]
-
 
 [features]
 default = ["rt"]
