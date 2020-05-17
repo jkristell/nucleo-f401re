@@ -6,7 +6,7 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 use rtt_target;
 
-use nucleo_f401re::{delay::Delay, prelude::*, stm32};
+use nucleo_f401re::{Led, delay::Delay, prelude::*, stm32};
 
 #[entry]
 fn main() -> ! {
@@ -18,8 +18,8 @@ fn main() -> ! {
     let gpioa = p.GPIOA.split();
 
     // (Re-)configure PA5 (LD2 - User Led) as output
-    let mut led = gpioa.pa5.into_push_pull_output();
-    led.set_low().ok();
+    let mut led = Led::new(gpioa.pa5);
+    led.set(false);
 
     // Constrain clock registers
     let rcc = p.RCC.constrain();
@@ -31,6 +31,6 @@ fn main() -> ! {
 
     loop {
         delay.delay_ms(500_u16);
-        led.toggle().ok();
+        led.toggle();
     }
 }

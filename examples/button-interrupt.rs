@@ -11,6 +11,7 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
+    Led,
     gpio::{Edge, ExtiPin},
     hal::{
         gpio::{gpioc::PC13, Input, PullUp},
@@ -36,7 +37,7 @@ fn main() -> ! {
 
     // Configure PA5 (LD2 - User led) as an output
     let gpioa = device.GPIOA.split();
-    let mut led = gpioa.pa5.into_push_pull_output();
+    let mut led = Led::new(gpioa.pa5);
 
     // Configure PC5 (User B1) as an input
     let gpioc = device.GPIOC.split();
@@ -66,7 +67,7 @@ fn main() -> ! {
     loop {
         let state_change = SIGNAL.load(Ordering::SeqCst);
         if state_change {
-            led.toggle().ok();
+            led.toggle();
             SIGNAL.store(false, Ordering::SeqCst);
         }
     }

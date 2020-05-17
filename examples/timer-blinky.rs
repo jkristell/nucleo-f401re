@@ -9,16 +9,16 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 
 use nucleo_f401re::{
+    Led,
     hal::interrupt,
     prelude::*,
     stm32::{self, TIM2},
     timer::{Event, Timer},
     Interrupt,
 };
-use stm32f4xx_hal::gpio::{gpioa::PA5, Output, PushPull};
 
 static TIMER: Mutex<RefCell<Option<Timer<TIM2>>>> = Mutex::new(RefCell::new(None));
-static LED: Mutex<RefCell<Option<PA5<Output<PushPull>>>>> = Mutex::new(RefCell::new(None));
+static LED: Mutex<RefCell<Option<Led>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
@@ -32,8 +32,7 @@ fn main() -> ! {
 
     let gpioa = p.GPIOA.split();
 
-    // (Re-)configure PA5 (LD2 - User Led) as output
-    let led = gpioa.pa5.into_push_pull_output();
+    let led = Led::new(gpioa.pa5);
 
     cortex_m::interrupt::free(|cs| {
         LED.borrow(cs).replace(Some(led));
@@ -68,6 +67,6 @@ fn TIM2() {
     // Toggle led
     cortex_m::interrupt::free(|cs| {
         let mut led = LED.borrow(cs).borrow_mut();
-        led.as_mut().unwrap().toggle().ok();
+        led.as_mut().unwrap().toggle();
     });
 }

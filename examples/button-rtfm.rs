@@ -6,7 +6,8 @@ use rtt_target::{rprintln, rtt_init_print};
 use panic_rtt_target as _;
 
 use nucleo_f401re::{
-    gpio::{gpioa::PA5, gpioc::PC13, Edge, ExtiPin, Input, Output, PullDown, PushPull},
+    Led,
+    gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullDown},
     prelude::*,
 };
 
@@ -16,7 +17,7 @@ use rtfm::app;
 const APP: () = {
     struct Resources {
         button: PC13<Input<PullDown>>,
-        led: PA5<Output<PushPull>>,
+        led: Led,
     }
 
     #[init]
@@ -31,7 +32,7 @@ const APP: () = {
 
         // Configure the led pin as an output
         let gpioa = device.GPIOA.split();
-        let led = gpioa.pa5.into_push_pull_output();
+        let led = Led::new(gpioa.pa5);
 
         // Enable the clock for the SYSCFG
         device.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
@@ -65,6 +66,6 @@ const APP: () = {
         // Clear the interrupt
         button.clear_interrupt_pending_bit();
         // Toggle the led
-        led.toggle().ok();
+        led.toggle();
     }
 };
