@@ -7,6 +7,7 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
+    Led,
     hal::{
         delay::Delay,
         prelude::*,
@@ -36,8 +37,8 @@ fn main() -> ! {
     let gpioa = device.GPIOA.split();
 
     // (Re-)configure PA5 (LD2 - User Led) as output
-    let mut led = gpioa.pa5.into_push_pull_output();
-    led.set_low().unwrap();
+    let mut led = Led::new(gpioa.pa5);
+    led.set(false);
 
     // Constrain clock registers
     let rcc = device.RCC.constrain();
@@ -84,7 +85,7 @@ fn main() -> ! {
     einkdisp.sleep(&mut spi).unwrap();
 
     loop {
-        led.toggle().ok();
+        led.toggle();
         delay.delay_ms(1000_u16);
     }
 }
