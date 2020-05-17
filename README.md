@@ -12,6 +12,9 @@ Or with cargo embed
 
 ```cargo embed --release --example button-rtfm```
 
+If probe fails to flash your board you probably need to update the firmware on the onboard programmer.
+The updater can be found at: https://www.st.com/en/development-tools/stsw-link007.html
+
 ### Board properties
 
  * User led on PA5
