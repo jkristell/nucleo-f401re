@@ -3,7 +3,8 @@
 
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_semihosting as _;
+use panic_rtt_target as _;
+use rtt_target;
 
 use nucleo_f401re::{
     delay::Delay,
@@ -28,6 +29,8 @@ use embedded_graphics::{
 
 #[entry]
 fn main() -> ! {
+    rtt_target::rtt_init_print!();
+
     let device = stm32::Peripherals::take().unwrap();
     let cp = Peripherals::take().unwrap();
 

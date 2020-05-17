@@ -35,10 +35,10 @@ version = "0.7.0"
 [dev-dependencies]
 nb = "0.1.1"
 hd44780-driver = "0.3.0"
-cortex-m-semihosting = "0.3"
-panic-semihosting = "0.5.1"
 tpa2016d2 = "0.2.0"
 embedded-graphics = { version = "0.6.0" }
+rtt-target = {version = "0.2.0", features = ["cortex-m"] }
+panic-rtt-target = {version = "0.1.0", features = ["cortex-m"] }
 
 [dev-dependencies.cortex-m-rtfm]
 version = "0.5"

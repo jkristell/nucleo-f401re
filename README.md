@@ -4,24 +4,13 @@
 
 1. Clone this repository
 
-#### Alternative 1: Using Probe.rs
+#### Flash using Probe.rs
 
-1. ```cargo flash --chip stm32f401re --example button-interrupt```
+```cargo flash --chip stm32f401re --example button-interrupt```
 
-NOTE: The examples that uses semihosting doesn't work with cargo flash yet.
+Or with cargo embed
 
-#### Alternative 2: Using openocd
-2. Start openocd
-
- ```
- openocd
- ```
-
-3. In another terminal, run your example of choice
-
- ```
- cargo run --example gpio_hal_blinky
- ```
+```cargo embed --release --example button-rtfm```
 
 ### Board properties
 

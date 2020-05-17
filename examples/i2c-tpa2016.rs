@@ -2,8 +2,8 @@
 #![no_std]
 
 use cortex_m_rt::entry;
-use cortex_m_semihosting::hprintln;
-use panic_semihosting as _;
+use panic_rtt_target as _;
+use rtt_target::rprintln;
 
 use nucleo_f401re::{i2c::I2c, prelude::*, stm32};
 
@@ -11,6 +11,8 @@ use tpa2016d2::{AgcPreset, Tpa2016d2};
 
 #[entry]
 fn main() -> ! {
+    rtt_target::rtt_init_print!();
+
     // The Stm32 peripherals
     let device = stm32::Peripherals::take().unwrap();
 
@@ -37,14 +39,14 @@ fn main() -> ! {
     // Print the registers
     for i in 1..=7 {
         let v = tpa.device_reg(i).unwrap();
-        hprintln!("{}: {}", i, v).unwrap();
+        rprintln!("{}: {}", i, v);
     }
 
     // Set the gain
     tpa.gain(32).unwrap();
 
     // Should print 32
-    hprintln!("gain: {}", tpa.device_reg(5).unwrap()).unwrap();
+    rprintln!("gain: {}", tpa.device_reg(5).unwrap());
 
     tpa.set_agc_preset(AgcPreset::Jazz).unwrap();
 

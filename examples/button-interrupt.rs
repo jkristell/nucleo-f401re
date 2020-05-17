@@ -7,7 +7,8 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use cortex_m::interrupt::Mutex;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_semihosting as _;
+use panic_rtt_target as _;
+use rtt_target;
 
 use nucleo_f401re::{
     gpio::{Edge, ExtiPin},
@@ -26,6 +27,8 @@ static BUTTON: Mutex<RefCell<Option<PC13<Input<PullUp>>>>> = Mutex::new(RefCell:
 
 #[entry]
 fn main() -> ! {
+    rtt_target::rtt_init_print!();
+
     // The Stm32 peripherals
     let mut device = stm32::Peripherals::take().unwrap();
     // The Cortex-m peripherals

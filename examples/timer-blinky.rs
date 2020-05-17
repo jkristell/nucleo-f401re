@@ -6,7 +6,7 @@ use core::cell::RefCell;
 use cortex_m::interrupt::Mutex;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_semihosting as _;
+use panic_rtt_target as _;
 
 use nucleo_f401re::{
     hal::interrupt,
@@ -22,6 +22,8 @@ static LED: Mutex<RefCell<Option<PA5<Output<PushPull>>>>> = Mutex::new(RefCell::
 
 #[entry]
 fn main() -> ! {
+    rtt_target::rtt_init_print!();
+
     let p = stm32::Peripherals::take().unwrap();
     let _core = Peripherals::take().unwrap();
 

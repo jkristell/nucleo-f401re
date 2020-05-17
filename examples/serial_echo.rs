@@ -2,7 +2,7 @@
 #![no_std]
 
 use cortex_m_rt::entry;
-use panic_semihosting as _;
+use panic_rtt_target as _;
 
 use nucleo_f401re::{
     prelude::*,
@@ -14,6 +14,8 @@ use nb::block;
 
 #[entry]
 fn main() -> ! {
+    rtt_target::rtt_init_print!();
+
     let device = stm32::Peripherals::take().unwrap();
 
     let gpioa = device.GPIOA.split();

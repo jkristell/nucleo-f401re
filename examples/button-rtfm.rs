@@ -2,8 +2,8 @@
 #![no_std]
 #![allow(deprecated)]
 
-use cortex_m_semihosting::hprintln;
-use panic_semihosting as _;
+use rtt_target::{rprintln, rtt_init_print};
+use panic_rtt_target as _;
 
 use nucleo_f401re::{
     gpio::{gpioa::PA5, gpioc::PC13, Edge, ExtiPin, Input, Output, PullDown, PushPull},
@@ -21,6 +21,7 @@ const APP: () = {
 
     #[init]
     fn init(ctx: init::Context) -> init::LateResources {
+        rtt_init_print!();
         // Device specific peripherals
         let mut device = ctx.device;
 
@@ -44,14 +45,14 @@ const APP: () = {
         let rcc = device.RCC.constrain();
         let _clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
-        hprintln!("init done").unwrap();
+        rprintln!("init done");
 
         init::LateResources { led, button }
     }
 
     #[idle]
     fn idle(_ctx: idle::Context) -> ! {
-        hprintln!("idle").unwrap();
+        rprintln!("idle");
 
         // The idle loop
         loop {}
