@@ -12,12 +12,12 @@ use rtt_target;
 
 use nucleo_f401re::{
     Led, Button,
-    gpio::{Edge},
     hal::{
+        gpio::{Edge},
         interrupt,
+        prelude::*,
     },
-    prelude::*,
-    stm32, Interrupt,
+    pac,
 };
 
 // Used to signal to the main loop that it should toggle the led
@@ -30,7 +30,7 @@ fn main() -> ! {
     rtt_target::rtt_init_print!();
 
     // The Stm32 peripherals
-    let mut device = stm32::Peripherals::take().unwrap();
+    let mut device = pac::Peripherals::take().unwrap();
     // The Cortex-m peripherals
     let _core = Peripherals::take().unwrap();
 
@@ -56,7 +56,7 @@ fn main() -> ! {
 
     // Enable the external interrupt
     unsafe {
-        cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
+        cortex_m::peripheral::NVIC::unmask(pac::Interrupt::EXTI15_10);
     }
 
     loop {

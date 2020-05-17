@@ -7,8 +7,10 @@ use panic_rtt_target as _;
 
 use nucleo_f401re::{
     Led, Button,
-    gpio::Edge,
-    prelude::*,
+    hal::{
+        gpio::Edge,
+        prelude::*,
+    }
 };
 
 use rtfm::app;

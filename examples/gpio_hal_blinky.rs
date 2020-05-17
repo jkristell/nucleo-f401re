@@ -6,13 +6,20 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 use rtt_target;
 
-use nucleo_f401re::{Led, delay::Delay, prelude::*, stm32};
+use nucleo_f401re::{
+    Led,
+    hal::{
+        delay::Delay,
+        prelude::*,
+    },
+    pac
+};
 
 #[entry]
 fn main() -> ! {
     rtt_target::rtt_init_print!();
 
-    let p = stm32::Peripherals::take().unwrap();
+    let p = pac::Peripherals::take().unwrap();
     let cp = Peripherals::take().unwrap();
 
     let gpioa = p.GPIOA.split();

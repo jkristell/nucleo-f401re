@@ -10,15 +10,15 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 
 use nucleo_f401re::{
-    delay::Delay,
-    gpio::{Edge, ExtiPin},
     hal::{
+        delay::Delay,
+        gpio::{Edge, ExtiPin},
         gpio::{gpioc::PC13, Input, PullDown},
         interrupt,
+        prelude::*,
+        spi::{self, Spi},
     },
-    prelude::*,
-    spi::{self, Spi},
-    stm32, Interrupt,
+    pac,
 };
 
 use embedded_hal::digital::v1_compat::OldOutputPin;
@@ -26,7 +26,6 @@ use embedded_hal::digital::v1_compat::OldOutputPin;
 use segment_display::SegmentDisplay;
 
 static SIGNAL: AtomicUsize = AtomicUsize::new(0);
-
 static BUTTON: Mutex<RefCell<Option<PC13<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
@@ -34,7 +33,7 @@ fn main() -> ! {
     rtt_target::rtt_init_print!();
 
     // The Stm32 peripherals
-    let mut device = stm32::Peripherals::take().unwrap();
+    let mut device = pac::Peripherals::take().unwrap();
     // The Cortex-m peripherals
     let core = Peripherals::take().unwrap();
 
@@ -62,7 +61,7 @@ fn main() -> ! {
 
     // Enable the external interrupt
     unsafe {
-        cortex_m::peripheral::NVIC::unmask(Interrupt::EXTI15_10);
+        cortex_m::peripheral::NVIC::unmask(pac::Interrupt::EXTI15_10);
     }
 
     let gpiob = device.GPIOB.split();

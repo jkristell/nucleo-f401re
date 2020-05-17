@@ -9,13 +9,18 @@ use panic_rtt_target as _;
 
 use embedded_hal::digital::v1_compat::OldOutputPin;
 use hd44780_driver::HD44780;
-use nucleo_f401re::{delay::Delay, prelude::*, stm32};
+use nucleo_f401re::{
+    hal::{
+        delay::Delay, prelude::*,
+    },
+    pac
+};
 
 #[entry]
 fn main() -> ! {
     rtt_target::rtt_init_print!();
 
-    let device = stm32::Peripherals::take().unwrap();
+    let device = pac::Peripherals::take().unwrap();
     let core = Peripherals::take().unwrap();
 
     let gpioa = device.GPIOA.split();

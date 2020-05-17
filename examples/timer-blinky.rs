@@ -10,21 +10,22 @@ use panic_rtt_target as _;
 
 use nucleo_f401re::{
     Led,
-    hal::interrupt,
-    prelude::*,
-    stm32::{self, TIM2},
-    timer::{Event, Timer},
-    Interrupt,
+    hal::{
+        prelude::*,
+        timer::{Event, Timer},
+        interrupt
+    },
+    pac
 };
 
-static TIMER: Mutex<RefCell<Option<Timer<TIM2>>>> = Mutex::new(RefCell::new(None));
+static TIMER: Mutex<RefCell<Option<Timer<pac::TIM2>>>> = Mutex::new(RefCell::new(None));
 static LED: Mutex<RefCell<Option<Led>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
     rtt_target::rtt_init_print!();
 
-    let p = stm32::Peripherals::take().unwrap();
+    let p = pac::Peripherals::take().unwrap();
     let _core = Peripherals::take().unwrap();
 
     // Enable the clock for the SYSCFG
@@ -52,7 +53,7 @@ fn main() -> ! {
     });
 
     // Enable TIM2 interrupt
-    unsafe { cortex_m::peripheral::NVIC::unmask(Interrupt::TIM2) }
+    unsafe { cortex_m::peripheral::NVIC::unmask(pac::Interrupt::TIM2) }
 
     loop {}
 }
@@ -61,7 +62,7 @@ fn main() -> ! {
 fn TIM2() {
     // Ack the interrupt
     unsafe {
-        (*stm32::TIM2::ptr()).sr.modify(|_, w| w.uif().clear_bit());
+        (*pac::TIM2::ptr()).sr.modify(|_, w| w.uif().clear_bit());
     }
 
     // Toggle led

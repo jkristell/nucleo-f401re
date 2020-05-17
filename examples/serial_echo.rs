@@ -5,9 +5,11 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 
 use nucleo_f401re::{
-    prelude::*,
-    serial::{config::Config, Serial},
-    stm32,
+    hal::{
+        prelude::*,
+        serial::{config::Config, Serial},
+    },
+    pac,
 };
 
 use nb::block;
@@ -16,7 +18,7 @@ use nb::block;
 fn main() -> ! {
     rtt_target::rtt_init_print!();
 
-    let device = stm32::Peripherals::take().unwrap();
+    let device = pac::Peripherals::take().unwrap();
 
     let gpioa = device.GPIOA.split();
     let rcc = device.RCC.constrain();

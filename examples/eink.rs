@@ -7,10 +7,12 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
-    delay::Delay,
-    prelude::*,
-    spi::{self, Spi},
-    stm32,
+    hal::{
+        delay::Delay,
+        prelude::*,
+        spi::{self, Spi},
+    },
+    pac
 };
 
 use epd_waveshare::{
@@ -31,7 +33,7 @@ use embedded_graphics::{
 fn main() -> ! {
     rtt_target::rtt_init_print!();
 
-    let device = stm32::Peripherals::take().unwrap();
+    let device = pac::Peripherals::take().unwrap();
     let cp = Peripherals::take().unwrap();
 
     let gpioa = device.GPIOA.split();

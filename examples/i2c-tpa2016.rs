@@ -5,7 +5,10 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 use rtt_target::rprintln;
 
-use nucleo_f401re::{i2c::I2c, prelude::*, stm32};
+use nucleo_f401re::{
+    hal::{i2c::I2c, prelude::*},
+    pac
+};
 
 use tpa2016d2::{AgcPreset, Tpa2016d2};
 
@@ -14,7 +17,7 @@ fn main() -> ! {
     rtt_target::rtt_init_print!();
 
     // The Stm32 peripherals
-    let device = stm32::Peripherals::take().unwrap();
+    let device = pac::Peripherals::take().unwrap();
 
     let rcc = device.RCC.constrain();
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
