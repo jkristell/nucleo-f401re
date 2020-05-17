@@ -11,10 +11,9 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
-    Led,
-    gpio::{Edge, ExtiPin},
+    Led, Button,
+    gpio::{Edge},
     hal::{
-        gpio::{gpioc::PC13, Input, PullUp},
         interrupt,
     },
     prelude::*,
@@ -24,7 +23,7 @@ use nucleo_f401re::{
 // Used to signal to the main loop that it should toggle the led
 static SIGNAL: AtomicBool = AtomicBool::new(false);
 
-static BUTTON: Mutex<RefCell<Option<PC13<Input<PullUp>>>>> = Mutex::new(RefCell::new(None));
+static BUTTON: Mutex<RefCell<Option<Button>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
@@ -35,25 +34,21 @@ fn main() -> ! {
     // The Cortex-m peripherals
     let _core = Peripherals::take().unwrap();
 
-    // Configure PA5 (LD2 - User led) as an output
-    let gpioa = device.GPIOA.split();
-    let mut led = Led::new(gpioa.pa5);
-
-    // Configure PC5 (User B1) as an input
-    let gpioc = device.GPIOC.split();
-    let mut button = gpioc.pc13.into_pull_up_input();
-
     // Enable the clock for the SYSCFG
     device.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
-
     // Constrain clock registers
     let rcc = device.RCC.constrain();
     let _clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
-    // Enable external interrupt on PC13
-    button.make_interrupt_source(&mut device.SYSCFG);
-    button.enable_interrupt(&mut device.EXTI);
-    button.trigger_on_edge(&mut device.EXTI, Edge::RISING);
+    let gpioa = device.GPIOA.split();
+    let gpioc = device.GPIOC.split();
+
+    // Configure PA5 (LD2 - User led) as an output
+    let mut led = Led::new(gpioa.pa5);
+
+    // Configure PC5 (User B1) as an input and enable external interrupt
+    let mut button = Button::new(gpioc.pc13);
+    button.enable_interrupt(Edge::RISING, &mut device.SYSCFG, &mut device.EXTI);
 
     cortex_m::interrupt::free(|cs| {
         BUTTON.borrow(cs).replace(Some(button));

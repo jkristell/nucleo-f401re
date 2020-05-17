@@ -10,3 +10,6 @@ pub use hal::*;
 
 mod led;
 pub use led::Led;
+
+mod button;
+pub use button::Button;
