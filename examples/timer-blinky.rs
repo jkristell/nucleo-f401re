@@ -9,13 +9,12 @@ use cortex_m_rt::entry;
 use panic_rtt_target as _;
 
 use nucleo_f401re::{
-    Led,
     hal::{
+        interrupt,
         prelude::*,
         timer::{Event, Timer},
-        interrupt
     },
-    pac
+    pac, Led,
 };
 
 static TIMER: Mutex<RefCell<Option<Timer<pac::TIM2>>>> = Mutex::new(RefCell::new(None));

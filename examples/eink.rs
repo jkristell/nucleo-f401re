@@ -12,13 +12,10 @@ use nucleo_f401re::{
         prelude::*,
         spi::{self, Spi},
     },
-    pac
+    pac,
 };
 
-use epd_waveshare::{
-    epd1in54b::*,
-    prelude::*,
-};
+use epd_waveshare::{epd1in54b::*, prelude::*};
 
 use embedded_graphics::{
     image::{Image, ImageRaw},

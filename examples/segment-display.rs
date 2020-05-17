@@ -12,8 +12,8 @@ use panic_rtt_target as _;
 use nucleo_f401re::{
     hal::{
         delay::Delay,
-        gpio::{Edge, ExtiPin},
         gpio::{gpioc::PC13, Input, PullDown},
+        gpio::{Edge, ExtiPin},
         interrupt,
         prelude::*,
         spi::{self, Spi},

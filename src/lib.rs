@@ -1,7 +1,7 @@
 #![no_std]
 
-pub use stm32f4xx_hal as hal;
 pub use hal::stm32 as pac;
+pub use stm32f4xx_hal as hal;
 
 mod led;
 pub use led::Led;

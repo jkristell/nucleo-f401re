@@ -2,15 +2,12 @@
 #![no_std]
 #![allow(deprecated)]
 
-use rtt_target::{rprintln, rtt_init_print};
 use panic_rtt_target as _;
+use rtt_target::{rprintln, rtt_init_print};
 
 use nucleo_f401re::{
-    Led, Button,
-    hal::{
-        gpio::Edge,
-        prelude::*,
-    }
+    hal::{gpio::Edge, prelude::*},
+    Button, Led,
 };
 
 use rtfm::app;

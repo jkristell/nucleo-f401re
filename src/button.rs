@@ -1,4 +1,4 @@
-use stm32f4xx_hal::gpio::{gpioc::PC13, Input, PullUp, Edge, ExtiPin};
+use stm32f4xx_hal::gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullUp};
 
 use stm32f4xx_hal::stm32::{EXTI, SYSCFG};
 
@@ -7,10 +7,9 @@ pub struct Button {
 }
 
 impl Button {
-
     pub fn new<M>(pc13: PC13<M>) -> Self {
         let pin = pc13.into_pull_up_input();
-        Self {pin}
+        Self { pin }
     }
 
     pub fn enable_interrupt(&mut self, edge: Edge, syscfg: &mut SYSCFG, exti: &mut EXTI) {

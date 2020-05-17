@@ -11,13 +11,8 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
-    Led, Button,
-    hal::{
-        gpio::{Edge},
-        interrupt,
-        prelude::*,
-    },
-    pac,
+    hal::{gpio::Edge, interrupt, prelude::*},
+    pac, Button, Led,
 };
 
 // Used to signal to the main loop that it should toggle the led

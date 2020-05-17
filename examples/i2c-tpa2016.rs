@@ -7,7 +7,7 @@ use rtt_target::rprintln;
 
 use nucleo_f401re::{
     hal::{i2c::I2c, prelude::*},
-    pac
+    pac,
 };
 
 use tpa2016d2::{AgcPreset, Tpa2016d2};

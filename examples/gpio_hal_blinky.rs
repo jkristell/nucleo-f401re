@@ -7,12 +7,8 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
-    Led,
-    hal::{
-        delay::Delay,
-        prelude::*,
-    },
-    pac
+    hal::{delay::Delay, prelude::*},
+    pac, Led,
 };
 
 #[entry]
