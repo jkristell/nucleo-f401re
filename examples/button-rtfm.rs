@@ -1,6 +1,5 @@
 #![no_main]
 #![no_std]
-#![allow(deprecated)]
 
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
@@ -12,7 +11,7 @@ use nucleo_f401re::{
 
 use rtfm::app;
 
-#[app(device = nucleo_f401re::hal::stm32, peripherals = true)]
+#[app(device = nucleo_f401re::pac, peripherals = true)]
 const APP: () = {
     struct Resources {
         button: Button,
