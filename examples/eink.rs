@@ -7,13 +7,12 @@ use panic_rtt_target as _;
 use rtt_target;
 
 use nucleo_f401re::{
-    Led,
     hal::{
         delay::Delay,
         prelude::*,
         spi::{self, Spi},
     },
-    pac,
+    pac, Led,
 };
 
 use epd_waveshare::{epd1in54b::*, prelude::*};

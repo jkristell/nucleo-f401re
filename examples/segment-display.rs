@@ -12,13 +12,12 @@ use panic_rtt_target as _;
 use nucleo_f401re::{
     hal::{
         delay::Delay,
-        gpio::{gpioc::PC13, Input, PullDown},
-        gpio::{Edge, ExtiPin},
+        gpio::Edge,
         interrupt,
         prelude::*,
         spi::{self, Spi},
     },
-    pac,
+    pac, Button,
 };
 
 use embedded_hal::digital::v1_compat::OldOutputPin;
@@ -26,34 +25,31 @@ use embedded_hal::digital::v1_compat::OldOutputPin;
 use segment_display::SegmentDisplay;
 
 static SIGNAL: AtomicUsize = AtomicUsize::new(0);
-static BUTTON: Mutex<RefCell<Option<PC13<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
+static BUTTON: Mutex<RefCell<Option<Button>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
     rtt_target::rtt_init_print!();
 
     // The Stm32 peripherals
-    let mut device = pac::Peripherals::take().unwrap();
+    let mut dp = pac::Peripherals::take().unwrap();
     // The Cortex-m peripherals
-    let core = Peripherals::take().unwrap();
-
-    // Configure PC5 (User B1) as an input
-    let gpioc = device.GPIOC.split();
-    let mut button = gpioc.pc13.into_pull_down_input();
+    let p = Peripherals::take().unwrap();
 
     // Enable the clock for the SYSCFG
-    device.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
-
+    dp.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
     // Constrain clock registers
-    let rcc = device.RCC.constrain();
+    let rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
-    let mut delay = Delay::new(core.SYST, clocks);
+    let gpiob = dp.GPIOB.split();
+    let gpioc = dp.GPIOC.split();
 
-    // Enable external interrupt on PC13
-    button.make_interrupt_source(&mut device.SYSCFG);
-    button.enable_interrupt(&mut device.EXTI);
-    button.trigger_on_edge(&mut device.EXTI, Edge::FALLING);
+    // Setup button
+    let mut button = Button::new(gpioc.pc13);
+    button.enable_interrupt(Edge::FALLING, &mut dp.SYSCFG, &mut dp.EXTI);
+
+    let mut delay = Delay::new(p.SYST, clocks);
 
     cortex_m::interrupt::free(|cs| {
         BUTTON.borrow(cs).replace(Some(button));
@@ -64,9 +60,7 @@ fn main() -> ! {
         cortex_m::peripheral::NVIC::unmask(pac::Interrupt::EXTI15_10);
     }
 
-    let gpiob = device.GPIOB.split();
     let sck = gpiob.pb3.into_alternate_af5();
-    //let miso = gpiob.pb4.into_alternate_af5();
     let miso = spi::NoMiso;
     let mosi = gpiob.pb5.into_alternate_af5();
 
@@ -78,13 +72,7 @@ fn main() -> ! {
         phase: spi::Phase::CaptureOnFirstTransition,
     };
 
-    let spi = Spi::spi1(
-        device.SPI1,
-        (sck, miso, mosi),
-        mode,
-        10_000_000.hz(),
-        clocks,
-    );
+    let spi = Spi::spi1(dp.SPI1, (sck, miso, mosi), mode, 10_000_000.hz(), clocks);
 
     let mut segment_display = SegmentDisplay::new(spi, OldOutputPin::from(latch));
 
@@ -104,6 +92,6 @@ fn EXTI15_10() {
         let mut button = BUTTON.borrow(cs).borrow_mut();
         button.as_mut().unwrap().clear_interrupt_pending_bit();
     });
-    // Signal to the man loop that it should toggle the led.
+    // Update display number
     SIGNAL.fetch_add(1, Ordering::SeqCst);
 }
