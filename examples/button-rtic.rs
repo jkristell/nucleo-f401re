@@ -9,7 +9,7 @@ use nucleo_f401re::{
     Button, Led,
 };
 
-use rtfm::app;
+use rtic::app;
 
 #[app(device = nucleo_f401re::pac, peripherals = true)]
 const APP: () = {
