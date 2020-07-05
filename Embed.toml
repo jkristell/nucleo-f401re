@@ -1,17 +1,17 @@
-[probe]
+[default.probe]
 protocol = "Swd"
 
-[flashing]
+[default.flashing]
 enabled = true
 halt_afterwards = false
 restore_unwritten_bytes = false
 
-[general]
+[default.general]
 chip = "stm32f401re"
 chip_descriptions = []
 log_level = "Warn"
 
-[rtt]
+[default.rtt]
 enabled = true
 # A list of channel associations to be displayed. If left empty, all channels are displayed.
 channels = [
@@ -20,5 +20,5 @@ channels = [
 timeout = 3000
 show_timestamps = true
 
-[gdb]
+[default.gdb]
 enabled = false
