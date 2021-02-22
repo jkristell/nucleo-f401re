@@ -3,7 +3,8 @@
 
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_rtt_target as _;
+use defmt_rtt as _;
+use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{
@@ -27,12 +28,11 @@ use embedded_graphics::{
 
 #[entry]
 fn main() -> ! {
-    rtt_target::rtt_init_print!();
-
     let device = pac::Peripherals::take().unwrap();
     let cp = Peripherals::take().unwrap();
 
     let gpioa = device.GPIOA.split();
+    let gpiob = device.GPIOB.split();
 
     // (Re-)configure PA5 (LD2 - User Led) as output
     let mut led = Led::new(gpioa.pa5);
@@ -40,20 +40,17 @@ fn main() -> ! {
 
     // Constrain clock registers
     let rcc = device.RCC.constrain();
-
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
     let mode = epd_waveshare::SPI_MODE;
 
-    let gpiob = device.GPIOB.split();
-    let sck = gpiob.pb3.into_alternate_af5(); // 4
-                                              //let miso = gpiob.pb4.into_alternate_af5();
-    let miso = spi::NoMiso;
-    let mosi = gpiob.pb5.into_alternate_af5(); // 5
+    let sck = gpiob.pb3; // 4
+    let miso = spi::NoMiso {};
+    let mosi = gpiob.pb5; // 5
 
-    let mut spi = Spi::spi1(device.SPI1, (sck, miso, mosi), mode, 4_000_000.hz(), clocks);
+    let mut spi = Spi::new(device.SPI1, (sck, miso, mosi), mode, 4_000_000.hz(), clocks);
 
-    let mut delay = Delay::new(cp.SYST, clocks);
+    let mut delay = Delay::new(cp.SYST, &clocks);
 
     let cs = gpioa.pa6.into_push_pull_output(); // 3
     let busy = gpioa.pa7.into_floating_input(); // 0
@@ -78,7 +75,7 @@ fn main() -> ! {
     let black_layer: Image<_, BinaryColor> = Image::new(&black_layer_raw, Point::zero());
     let _ = black_layer.draw(&mut blackbuf);
 
-    let _ = einkdisp.update_color_frame(&mut spi, blackbuf.buffer(), &redbuf.buffer());
+    let _ = einkdisp.update_color_frame(&mut spi, blackbuf.buffer(), redbuf.buffer());
     einkdisp.display_frame(&mut spi).unwrap();
     einkdisp.sleep(&mut spi).unwrap();
 

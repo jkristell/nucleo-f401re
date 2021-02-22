@@ -19,27 +19,61 @@ categories = [
     "no-std",
 ]
 
+[features]
+defmt-default = []
+defmt-trace = []
+defmt-debug = []
+defmt-info = []
+defmt-warn = []
+defmt-error = []
+
+default = [
+    "defmt-debug",
+]
+
 [dependencies]
 cortex-m = "0.7"
 cortex-m-rt = "0.6"
 embedded-hal = "0.2"
-stm32f4xx-hal = { version = "0.9", features = ["rt", "stm32f401"] }
+stm32f4xx-hal = { version = "0.10", features = ["rt", "stm32f401", "usb_fs"] }
 
 [dev-dependencies]
 nb = "1"
-rtt-target = { version = "0.3.0", features = ["cortex-m"] }
-panic-rtt-target = { version = "0.1.0", features = ["cortex-m"] }
-cortex-m-rtic = "0.6.0-alpha.2"
+defmt = "0.2.0"
+defmt-rtt = "0.2.0"
+panic-probe = { version = "0.2.0", features = ["print-defmt"] }
+cortex-m-rtic = "0.6.0-rc.2"
+dwt-systick-monotonic = "0.1.0-alpha.3"
 hd44780-driver = "0.4.0"
 tpa2016d2 = "0.2.0"
 segment-display = "0.1"
 embedded-graphics = { version = "0.6" }
 epd-waveshare = { version = "0.4", features = ["graphics"] }
+infrared = { version = "0.13.0", features = ["defmt"] }
 
 [profile.dev]
-debug = true
+codegen-units = 1
+debug = 2
+debug-assertions = true
+incremental = false
+opt-level = 3
+overflow-checks = true
 
+# cargo test
+[profile.test]
+codegen-units = 1
+debug = 2
+debug-assertions = true
+incremental = false
+opt-level = 3
+overflow-checks = true
+
+# cargo build/run --release
 [profile.release]
-debug = true
-lto = true
-opt-level = "s"
+codegen-units = 1
+debug = 2
+debug-assertions = false
+incremental = false
+lto = 'fat'
+opt-level = 3
+overflow-checks = false

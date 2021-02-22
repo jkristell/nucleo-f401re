@@ -3,7 +3,8 @@
 
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_rtt_target as _;
+use defmt_rtt as _;
+use panic_probe as _;
 
 use hd44780_driver::HD44780;
 use nucleo_f401re::{
@@ -13,8 +14,6 @@ use nucleo_f401re::{
 
 #[entry]
 fn main() -> ! {
-    rtt_target::rtt_init_print!();
-
     let device = pac::Peripherals::take().unwrap();
     let core = Peripherals::take().unwrap();
 
@@ -35,7 +34,7 @@ fn main() -> ! {
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
     // Get delay provider
-    let mut delay = Delay::new(core.SYST, clocks);
+    let mut delay = Delay::new(core.SYST, &clocks);
 
     // Setup the driver
     let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, &mut delay).unwrap();

@@ -7,7 +7,8 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use cortex_m::interrupt::Mutex;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_rtt_target as _;
+use defmt_rtt as _;
+use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{gpio::Edge, interrupt, prelude::*},
@@ -21,8 +22,6 @@ static BUTTON: Mutex<RefCell<Option<Button>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
-    rtt_target::rtt_init_print!();
-
     // The Stm32 peripherals
     let mut device = pac::Peripherals::take().unwrap();
     // The Cortex-m peripherals
@@ -42,7 +41,7 @@ fn main() -> ! {
 
     // Configure PC5 (User B1) as an input and enable external interrupt
     let mut button = Button::new(gpioc.pc13);
-    button.enable_interrupt(Edge::RISING, &mut syscfg, &mut device.EXTI);
+    button.enable_interrupt(Edge::Rising, &mut syscfg, &mut device.EXTI);
 
     cortex_m::interrupt::free(|cs| {
         BUTTON.borrow(cs).replace(Some(button));

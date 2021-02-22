@@ -1,25 +1,28 @@
 #![no_main]
 #![no_std]
 
+use defmt_rtt as _;
+use panic_probe as _;
+
 #[rtic::app(device = nucleo_f401re::pac, peripherals = true)]
 mod app {
-    use panic_rtt_target as _;
-    use rtt_target::{rprintln, rtt_init_print};
 
     use nucleo_f401re::{
         hal::{gpio::Edge, prelude::*},
         Button, Led,
     };
 
-    #[resources]
+    #[shared]
     struct Resources {
         button: Button,
         led: Led,
     }
 
+    #[local]
+    struct Local {}
+
     #[init]
-    fn init(ctx: init::Context) -> (init::LateResources, init::Monotonics) {
-        rtt_init_print!();
+    fn init(ctx: init::Context) -> (Resources, Local, init::Monotonics) {
         // Device specific peripherals
         let mut device = ctx.device;
 
@@ -34,27 +37,26 @@ mod app {
 
         // Setup Button and enable external interrupt
         let mut button = Button::new(gpioc.pc13);
-        button.enable_interrupt(Edge::RISING, &mut syscfg, &mut device.EXTI);
+        button.enable_interrupt(Edge::Rising, &mut syscfg, &mut device.EXTI);
 
         // Setup the led
         let led = Led::new(gpioa.pa5);
 
-        rprintln!("init done");
+        defmt::info!("init done");
 
-        (init::LateResources { led, button }, init::Monotonics())
+        (Resources { led, button }, Local {}, init::Monotonics())
     }
 
     #[idle]
     fn idle(_ctx: idle::Context) -> ! {
-        rprintln!("idle");
-
         // The idle loop
         loop {}
     }
 
-    #[task(binds = EXTI15_10, resources = [led, button])]
+    #[task(binds = EXTI15_10, shared = [led, button])]
     fn on_button_press(ctx: on_button_press::Context) {
-        let on_button_press::Resources { mut led, mut button } = ctx.resources;
+        let mut led = ctx.shared.led;
+        let mut button = ctx.shared.button;
 
         // Clear the interrupt
         button.lock(|b| b.clear_interrupt_pending_bit());
@@ -62,6 +64,6 @@ mod app {
         // Toggle the led
         led.lock(|l| l.toggle());
 
-        rprintln!("Button pressed!");
+        defmt::info!("Button pressed!");
     }
 }

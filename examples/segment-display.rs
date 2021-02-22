@@ -7,7 +7,8 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 use cortex_m::interrupt::Mutex;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
-use panic_rtt_target as _;
+use defmt_rtt as _;
+use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{
@@ -29,8 +30,6 @@ static BUTTON: Mutex<RefCell<Option<Button>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
-    rtt_target::rtt_init_print!();
-
     // The Stm32 peripherals
     let mut dp = pac::Peripherals::take().unwrap();
     // The Cortex-m peripherals
@@ -47,9 +46,9 @@ fn main() -> ! {
 
     // Setup button
     let mut button = Button::new(gpioc.pc13);
-    button.enable_interrupt(Edge::FALLING, &mut syscfg, &mut dp.EXTI);
+    button.enable_interrupt(Edge::Falling, &mut syscfg, &mut dp.EXTI);
 
-    let mut delay = Delay::new(p.SYST, clocks);
+    let mut delay = Delay::new(p.SYST, &clocks);
 
     cortex_m::interrupt::free(|cs| {
         BUTTON.borrow(cs).replace(Some(button));
@@ -60,9 +59,9 @@ fn main() -> ! {
         cortex_m::peripheral::NVIC::unmask(pac::Interrupt::EXTI15_10);
     }
 
-    let sck = gpiob.pb3.into_alternate_af5();
-    let miso = spi::NoMiso;
-    let mosi = gpiob.pb5.into_alternate_af5();
+    let sck = gpiob.pb3;
+    let miso = spi::NoMiso {};
+    let mosi = gpiob.pb5;
 
     // rclk
     let latch = gpiob.pb4.into_push_pull_output();
@@ -72,7 +71,7 @@ fn main() -> ! {
         phase: spi::Phase::CaptureOnFirstTransition,
     };
 
-    let spi = Spi::spi1(dp.SPI1, (sck, miso, mosi), mode, 10_000_000.hz(), clocks);
+    let spi = Spi::new(dp.SPI1, (sck, miso, mosi), mode, 10_000_000.hz(), clocks);
 
     let mut segment_display = SegmentDisplay::new(spi, OldOutputPin::from(latch));
 
