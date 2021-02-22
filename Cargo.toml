@@ -35,6 +35,7 @@ tpa2016d2 = "0.2.0"
 segment-display = "0.1"
 embedded-graphics = { version = "0.6" }
 epd-waveshare = { version = "0.4", features = ["graphics"] }
+infrared = "0.10.0"
 
 [profile.dev]
 debug = true
