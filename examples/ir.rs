@@ -20,16 +20,17 @@ use nucleo_f401re::{
 
 use infrared::{
     PeriodicReceiver,
+    protocols::{Nec, NecApple},
 };
-use infrared::protocols::Nec;
 use nucleo_f401re::hal::gpio::gpioa::PA0;
 use nucleo_f401re::hal::gpio::{Input, Floating};
+use infrared::protocols::capture::Capture;
 
 static TIMER: Mutex<RefCell<Option<Timer<pac::TIM2>>>> = Mutex::new(RefCell::new(None));
 static LED: Mutex<RefCell<Option<Led>>> = Mutex::new(RefCell::new(None));
 
 
-type Proto = Nec;
+type Proto = Capture;
 type IrPin = PA0<Input<Floating>>;
 
 static RECEIVER: Mutex<RefCell<Option<PeriodicReceiver<Proto, IrPin>>>> = Mutex::new(RefCell::new(None));
@@ -77,13 +78,6 @@ fn main() -> ! {
 
 #[interrupt]
 fn TIM2() {
-
-
-
-    // Ack the interrupt
-    //unsafe {
-    //    (*pac::TIM2::ptr()).sr.modify(|_, w| w.uif().clear_bit());
-    //}
 
     // Toggle led
     cortex_m::interrupt::free(|cs| {
