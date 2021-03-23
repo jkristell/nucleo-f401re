@@ -59,14 +59,13 @@ fn main() -> ! {
 
 #[interrupt]
 fn TIM2() {
-    // Ack the interrupt
-    unsafe {
-        (*pac::TIM2::ptr()).sr.modify(|_, w| w.uif().clear_bit());
-    }
-
     // Toggle led
     cortex_m::interrupt::free(|cs| {
         let mut led = LED.borrow(cs).borrow_mut();
         led.as_mut().unwrap().toggle();
+
+        // Ack the interrupt
+        let mut timer = TIMER.borrow(cs).borrow_mut();
+        timer.as_mut().unwrap().clear_interrupt(Event::TimeOut)
     });
 }
