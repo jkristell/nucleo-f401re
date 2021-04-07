@@ -1,7 +1,7 @@
 use stm32f4xx_hal::{
-    syscfg::SysCfg,
+    gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullUp},
     pac::EXTI,
-    gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullUp}
+    syscfg::SysCfg,
 };
 
 pub struct Button {
