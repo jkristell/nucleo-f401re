@@ -46,5 +46,7 @@ fn main() -> ! {
     lcd.set_cursor_pos(40, &mut delay).unwrap();
     let _ = lcd.write_str("Nucleo f401RE", &mut delay).unwrap();
 
-    loop {}
+    loop {
+        continue;
+    }
 }

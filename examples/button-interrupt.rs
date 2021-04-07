@@ -8,7 +8,6 @@ use cortex_m::interrupt::Mutex;
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
 use panic_rtt_target as _;
-use rtt_target;
 
 use nucleo_f401re::{
     hal::{gpio::Edge, interrupt, prelude::*},
