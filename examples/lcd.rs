@@ -1,13 +1,10 @@
 #![no_main]
 #![no_std]
 
-use core::fmt::Write;
-
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
 use panic_rtt_target as _;
 
-use embedded_hal::digital::v1_compat::OldOutputPin;
 use hd44780_driver::HD44780;
 use nucleo_f401re::{
     hal::{delay::Delay, prelude::*},
@@ -38,23 +35,16 @@ fn main() -> ! {
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
     // Get delay provider
-    let delay = Delay::new(core.SYST, clocks);
-
-    let rs = OldOutputPin::from(rs);
-    let en = OldOutputPin::from(en);
-    let d4 = OldOutputPin::from(d4);
-    let d5 = OldOutputPin::from(d5);
-    let d6 = OldOutputPin::from(d6);
-    let d7 = OldOutputPin::from(d7);
+    let mut delay = Delay::new(core.SYST, clocks);
 
     // Setup the driver
-    let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, delay);
+    let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, &mut delay).unwrap();
 
-    lcd.reset();
-    lcd.clear();
-    let _ = lcd.write_str("Hello, World!");
-    lcd.set_cursor_pos(40);
-    let _ = lcd.write_str("Nucleo f401RE");
+    lcd.reset(&mut delay).unwrap();
+    lcd.clear(&mut delay).unwrap();
+    let _ = lcd.write_str("Hello, World!", &mut delay).unwrap();
+    lcd.set_cursor_pos(40, &mut delay).unwrap();
+    let _ = lcd.write_str("Nucleo f401RE", &mut delay).unwrap();
 
     loop {}
 }

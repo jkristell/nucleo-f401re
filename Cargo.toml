@@ -20,7 +20,7 @@ categories = [
 ]
 
 [dependencies]
-cortex-m = "0.6"
+cortex-m = "0.7"
 cortex-m-rt = "0.6"
 embedded-hal = "0.2"
 stm32f4xx-hal = { version = "0.9", features = ["rt", "stm32f401"] }
@@ -30,7 +30,7 @@ nb = "1"
 rtt-target = { version = "0.3.0", features = ["cortex-m"] }
 panic-rtt-target = { version = "0.1.0", features = ["cortex-m"] }
 cortex-m-rtic = "0.5"
-hd44780-driver = "0.3.0"
+hd44780-driver = "0.4.0"
 tpa2016d2 = "0.2.0"
 segment-display = "0.1"
 embedded-graphics = { version = "0.6" }
