@@ -23,7 +23,7 @@ categories = [
 cortex-m = "0.6"
 cortex-m-rt = "0.6"
 embedded-hal = "0.2"
-stm32f4xx-hal = { version = "0.8", features = ["rt", "stm32f401"] }
+stm32f4xx-hal = { version = "0.9", features = ["rt", "stm32f401"] }
 
 [dev-dependencies]
 nb = "1"

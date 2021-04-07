@@ -35,7 +35,7 @@ fn main() -> ! {
         .internal_pull_up(true)
         .set_open_drain();
 
-    let i2c = I2c::i2c1(device.I2C1, (scl, sda), 200.khz(), clocks);
+    let i2c = I2c::new(device.I2C1, (scl, sda), 200.khz(), clocks);
 
     let mut tpa = Tpa2016d2::new(i2c);
 

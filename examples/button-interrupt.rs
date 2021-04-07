@@ -29,11 +29,11 @@ fn main() -> ! {
     // The Cortex-m peripherals
     let _core = Peripherals::take().unwrap();
 
-    // Enable the clock for the SYSCFG
-    device.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
     // Constrain clock registers
     let rcc = device.RCC.constrain();
     let _clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+
+    let mut syscfg = device.SYSCFG.constrain();
 
     let gpioa = device.GPIOA.split();
     let gpioc = device.GPIOC.split();
@@ -43,7 +43,7 @@ fn main() -> ! {
 
     // Configure PC5 (User B1) as an input and enable external interrupt
     let mut button = Button::new(gpioc.pc13);
-    button.enable_interrupt(Edge::RISING, &mut device.SYSCFG, &mut device.EXTI);
+    button.enable_interrupt(Edge::RISING, &mut syscfg, &mut device.EXTI);
 
     cortex_m::interrupt::free(|cs| {
         BUTTON.borrow(cs).replace(Some(button));

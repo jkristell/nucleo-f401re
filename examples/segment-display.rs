@@ -36,18 +36,18 @@ fn main() -> ! {
     // The Cortex-m peripherals
     let p = Peripherals::take().unwrap();
 
-    // Enable the clock for the SYSCFG
-    dp.RCC.apb2enr.modify(|_, w| w.syscfgen().enabled());
     // Constrain clock registers
     let rcc = dp.RCC.constrain();
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+
+    let mut syscfg = dp.SYSCFG.constrain();
 
     let gpiob = dp.GPIOB.split();
     let gpioc = dp.GPIOC.split();
 
     // Setup button
     let mut button = Button::new(gpioc.pc13);
-    button.enable_interrupt(Edge::FALLING, &mut dp.SYSCFG, &mut dp.EXTI);
+    button.enable_interrupt(Edge::FALLING, &mut syscfg, &mut dp.EXTI);
 
     let mut delay = Delay::new(p.SYST, clocks);
 
