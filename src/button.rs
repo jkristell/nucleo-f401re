@@ -1,6 +1,8 @@
-use stm32f4xx_hal::gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullUp};
-
-use stm32f4xx_hal::stm32::{EXTI, SYSCFG};
+use stm32f4xx_hal::{
+    gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullUp},
+    pac::EXTI,
+    syscfg::SysCfg,
+};
 
 pub struct Button {
     pin: PC13<Input<PullUp>>,
@@ -12,7 +14,7 @@ impl Button {
         Self { pin }
     }
 
-    pub fn enable_interrupt(&mut self, edge: Edge, syscfg: &mut SYSCFG, exti: &mut EXTI) {
+    pub fn enable_interrupt(&mut self, edge: Edge, syscfg: &mut SysCfg, exti: &mut EXTI) {
         // Enable external interrupt on PC13
         self.pin.make_interrupt_source(syscfg);
         self.pin.enable_interrupt(exti);
