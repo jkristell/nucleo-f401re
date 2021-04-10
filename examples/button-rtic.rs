@@ -1,25 +1,24 @@
 #![no_main]
 #![no_std]
 
-use panic_rtt_target as _;
-use rtt_target::{rprintln, rtt_init_print};
+#[rtic::app(device = nucleo_f401re::pac, peripherals = true)]
+mod app {
+    use panic_rtt_target as _;
+    use rtt_target::{rprintln, rtt_init_print};
 
-use nucleo_f401re::{
-    hal::{gpio::Edge, prelude::*},
-    Button, Led,
-};
+    use nucleo_f401re::{
+        hal::{gpio::Edge, prelude::*},
+        Button, Led,
+    };
 
-use rtic::app;
-
-#[app(device = nucleo_f401re::pac, peripherals = true)]
-const APP: () = {
+    #[resources]
     struct Resources {
         button: Button,
         led: Led,
     }
 
     #[init]
-    fn init(ctx: init::Context) -> init::LateResources {
+    fn init(ctx: init::Context) -> (init::LateResources, init::Monotonics) {
         rtt_init_print!();
         // Device specific peripherals
         let mut device = ctx.device;
@@ -42,7 +41,7 @@ const APP: () = {
 
         rprintln!("init done");
 
-        init::LateResources { led, button }
+        (init::LateResources { led, button }, init::Monotonics())
     }
 
     #[idle]
@@ -55,11 +54,14 @@ const APP: () = {
 
     #[task(binds = EXTI15_10, resources = [led, button])]
     fn on_button_press(ctx: on_button_press::Context) {
-        let on_button_press::Resources { led, button } = ctx.resources;
+        let on_button_press::Resources { mut led, mut button } = ctx.resources;
 
         // Clear the interrupt
-        button.clear_interrupt_pending_bit();
+        button.lock(|b| b.clear_interrupt_pending_bit());
+
         // Toggle the led
-        led.toggle();
+        led.lock(|l| l.toggle());
+
+        rprintln!("Button pressed!");
     }
-};
+}
