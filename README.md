@@ -1,4 +1,4 @@
-[![crates.io version](https://meritbadge.herokuapp.com/nucleo-f401re)](https://crates.io/crates/nucleo-f401re)
+[![crates.io version](https://img.shields.io/crates/v/nucleo-f401re.svg)](https://crates.io/crates/nucleo-f401re)
 [![docs.rs](https://docs.rs/nucleo-f401re/badge.svg)](https://docs.rs/nucle-f401re)
 
 ## Support package for the [Nucleo-f401re](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) board.
