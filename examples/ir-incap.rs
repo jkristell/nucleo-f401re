@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 
-use core::cell::RefCell;
+use core::cell::{RefCell};
 
 use cortex_m::{interrupt::Mutex, peripheral::Peripherals};
 use cortex_m_rt::entry;
@@ -11,56 +11,42 @@ use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{
-        gpio::{gpioa::PA10, Edge, Floating, Input},
         interrupt,
         prelude::*,
-        timer::{Instant, MonoTimer},
     },
     pac, Led,
 };
 
-use infrared::protocol::{NecApple};
-use infrared::remotecontrol::nec::{Apple2009};
-use infrared::remotecontrol::Button;
-use infrared::{
-    receiver::{Event, PinInput},
-    Receiver,
-};
 use stm32f4xx_hal::timer::Timer;
+use nucleo_f401re::hal::pwm_input::InputCapture;
+use nucleo_f401re::hal::pac::TIM1;
+use stm32f4xx_hal::gpio::Alternate;
+use nucleo_f401re::hal::gpio::Pin;
 
-type IrProto = NecApple;
-type IrRemote = Apple2009;
-type IrReceivePin = PA10<Input<Floating>>;
-type IrReceiver = infrared::Receiver<IrProto, Event, PinInput<IrReceivePin>, Button<IrRemote>>;
+//type IrProto = NecApple;
+//type IrRemote = Apple2009;
+//type IrReceivePin = PA10<Input<Floating>>;
+//type IrReceiver = infrared::Receiver<IrProto, Event, PinInput<IrReceivePin>, Button<IrRemote>>;
+type InCap = InputCapture<TIM1, Pin<Alternate<1>, 'A', 8>>;
 
+static INCAP: Mutex<RefCell<Option<InCap>>> = Mutex::new(RefCell::new(None));
 //static IR_RX: Mutex<RefCell<Option<IrReceiver>>> = Mutex::new(RefCell::new(None));
 //static TIMER: Mutex<RefCell<Option<MonoTimer>>> = Mutex::new(RefCell::new(None));
 //static LED: Mutex<RefCell<Option<Led>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
-    let mut p = pac::Peripherals::take().unwrap();
-    let cp = Peripherals::take().unwrap();
+    let p = pac::Peripherals::take().unwrap();
+    let _cp = Peripherals::take().unwrap();
 
-    let mut syscfg = p.SYSCFG.constrain();
+    let _syscfg = p.SYSCFG.constrain();
     let rcc = p.RCC.constrain();
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
 
-    let monotonic = MonoTimer::new(cp.DWT, cp.DCB, &clocks);
-    let mono_freq = monotonic.frequency();
-
     let gpioa = p.GPIOA.split();
-    let gpiob = p.GPIOB.split();
+    let _gpiob = p.GPIOB.split();
 
-    let board_led = Led::new(gpioa.pa5);
-
-    // Leds on the daughter board
-    //let mut led_yellow = gpioa.pa8.into_push_pull_output();
-    //led_yellow.set_high();
-
-    let mut led_blue = gpiob.pb10.into_push_pull_output();
-    led_blue.set_high();
-
+    let _board_led = Led::new(gpioa.pa5);
 
     //let channels = (gpioa.pa8.into_alternate(), gpioa.pa9.into_alternate());
     // configure tim1 as a PWM output of known frequency.
@@ -85,6 +71,7 @@ fn main() -> ! {
         //LED.borrow(cs).replace(Some(board_led));
         //IR_RX.borrow(cs).replace(Some(receiver));
         //TIMER.borrow(cs).replace(Some(monotonic));
+        INCAP.borrow(cs).replace(Some(monitor));
     });
 
     // Enable interrupt on input pin
@@ -98,8 +85,17 @@ fn main() -> ! {
 #[interrupt]
 fn TIM1_CC() {
 
-    /* 
+
     cortex_m::interrupt::free(|cs| {
+
+        let mut timer = INCAP.borrow(cs).borrow_mut();
+        let timer = timer.as_mut().unwrap();
+
+        let c = timer.cc1();
+
+        defmt::debug!("c = {:?}", c);
+
+        /*
         let mut timer = TIMER.borrow(cs).borrow_mut();
         let mono = timer.as_mut().unwrap();
 
@@ -124,6 +120,6 @@ fn TIM1_CC() {
 
         let mut led = LED.borrow(cs).borrow_mut();
         led.as_mut().unwrap().toggle();
-    });
     */
+    });
 }
