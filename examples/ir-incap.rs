@@ -42,6 +42,7 @@ fn main() -> ! {
     let _syscfg = p.SYSCFG.constrain();
     let rcc = p.RCC.constrain();
     let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    //let clocks = rcc.cfgr.freeze();
 
     let gpioa = p.GPIOA.split();
     let _gpiob = p.GPIOB.split();
@@ -60,10 +61,15 @@ fn main() -> ! {
     let pwm_reader_ch1 = gpioa.pa8.into_alternate();
 
     // configure tim8 as a PWM input, using the best-guess frequency of the input signal.
-    let monitor = Timer::new(p.TIM1, &clocks).input_capture( pwm_reader_ch1);
+    let monitor = Timer::new(p.TIM1, &clocks).input_capture(1343, 62499, pwm_reader_ch1);
 
-    // NOTE: this value may only be accurately observed at the CC2 interrupt.
-    let _duty = monitor.cc1();
+    defmt::debug!("timer freq = {:?}, psc = {:?} arr = {:?}",
+        monitor.clk.0, monitor.psc,
+        monitor.tim.arr.read().bits(),
+    );
+
+    let c = monitor.cc1();
+    defmt::debug!("c = {:?}", c);
 
 
 
@@ -75,7 +81,7 @@ fn main() -> ! {
     });
 
     // Enable interrupt on input pin
-    unsafe { cortex_m::peripheral::NVIC::unmask(pac::Interrupt::EXTI15_10) }
+    unsafe { cortex_m::peripheral::NVIC::unmask(pac::Interrupt::TIM1_CC) }
 
     defmt::info!("Setup done");
 
@@ -84,42 +90,34 @@ fn main() -> ! {
 
 #[interrupt]
 fn TIM1_CC() {
-
+    static mut rising: u16 = 0;
+    static mut falling: u16 = 0;
 
     cortex_m::interrupt::free(|cs| {
 
         let mut timer = INCAP.borrow(cs).borrow_mut();
         let timer = timer.as_mut().unwrap();
 
-        let c = timer.cc1();
+        let caps = timer.captures();
+        //defmt::debug!("caps = {:?}", caps);
 
-        defmt::debug!("c = {:?}", c);
-
-        /*
-        let mut timer = TIMER.borrow(cs).borrow_mut();
-        let mono = timer.as_mut().unwrap();
-
-        let mut receiver = IR_RX.borrow(cs).borrow_mut();
-        let receiver = receiver.as_mut().unwrap();
-
-        if let Some(dt) = LAST.map(|i| i.elapsed()) {
-            defmt::trace!("dt: {}", dt);
-
-            match receiver.event(dt) {
-                Ok(Some(cmd)) => {
-                    defmt::info!("cmd: {:?}", cmd);
-                }
-                Ok(None) => {}
-                Err(err) => defmt::error!("Receiver error: {:?}", err),
-            }
+        if let Some(r) = caps.0 {
+            defmt::debug!("diff = {:?}",
+                r.wrapping_sub(*rising),
+            );
+                *rising = r;
         }
 
-        LAST.replace(mono.now());
+        //if let Some(f) = caps.1 {
+        //    defmt::debug!("diff = {:?}",
+        //        f.wrapping_sub(*rising),
+        //    );
+        //    *falling = f;
+        //}
 
-        receiver.pin().clear_interrupt_pending_bit();
-
-        let mut led = LED.borrow(cs).borrow_mut();
-        led.as_mut().unwrap().toggle();
-    */
+        //let c = caps.0.unwrap_or_default();
+        //let diff = c.wrapping_sub(*last);
+        //*last = c;
+        //defmt::debug!("c = {:?}, diff = {:?}", c, diff);
     });
 }
