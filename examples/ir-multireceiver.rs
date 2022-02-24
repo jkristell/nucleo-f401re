@@ -14,7 +14,6 @@ use nucleo_f401re::{
         gpio::{gpioa::PA10, Edge, Floating, Input},
         interrupt,
         prelude::*,
-        timer::{Instant, MonoTimer},
     },
     pac, Led,
 };
@@ -23,6 +22,7 @@ use infrared::{
     protocol::{Denon, Nec, NecApple, NecSamsung, Rc5, Rc6},
     receiver::{MultiReceiver, PinInput},
 };
+use stm32f4xx_hal::dwt::{Instant, MonoTimer};
 
 type IrProtos = (Nec, NecSamsung, NecApple, Rc5, Rc6, Denon);
 type IrReceivePin = PA10<Input<Floating>>;
@@ -39,7 +39,7 @@ fn main() -> ! {
 
     let mut syscfg = p.SYSCFG.constrain();
     let rcc = p.RCC.constrain();
-    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     let monotonic = MonoTimer::new(cp.DWT, cp.DCB, &clocks);
     let mono_freq = monotonic.frequency();
@@ -61,7 +61,7 @@ fn main() -> ! {
     ir_recv_pin.enable_interrupt(&mut p.EXTI);
     ir_recv_pin.trigger_on_edge(&mut p.EXTI, Edge::RisingFalling);
 
-    let receiver = MultiReceiver::new(mono_freq.0, PinInput(ir_recv_pin));
+    let receiver = MultiReceiver::new(mono_freq.to_Hz(), PinInput(ir_recv_pin));
 
     cortex_m::interrupt::free(|cs| {
         LED.borrow(cs).replace(Some(board_led));

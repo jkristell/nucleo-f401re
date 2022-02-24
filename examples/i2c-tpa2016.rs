@@ -18,18 +18,14 @@ fn main() -> ! {
     let device = pac::Peripherals::take().unwrap();
 
     let rcc = device.RCC.constrain();
-    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     let gpiob = device.GPIOB.split();
-    let scl = gpiob
-        .pb8
-        .into_alternate_open_drain();
+    let scl = gpiob.pb8.into_alternate_open_drain();
 
-    let sda = gpiob
-        .pb9
-        .into_alternate_open_drain();
+    let sda = gpiob.pb9.into_alternate_open_drain();
 
-    let i2c = I2c::new(device.I2C1, (scl, sda), 200.khz(), clocks);
+    let i2c = I2c::new(device.I2C1, (scl, sda), 200_000.Hz(), &clocks);
 
     let mut tpa = Tpa2016d2::new(i2c);
 

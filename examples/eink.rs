@@ -4,27 +4,25 @@
 use cortex_m::peripheral::Peripherals;
 use cortex_m_rt::entry;
 use defmt_rtt as _;
+use embedded_graphics::image::{Image, ImageRaw};
+use embedded_graphics::pixelcolor::BinaryColor;
 use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{
-        delay::Delay,
         prelude::*,
         spi::{self, Spi},
     },
     pac, Led,
 };
 
-use epd_waveshare::{epd1in54b::*, prelude::*};
+use embedded_graphics::prelude::*;
 
-use embedded_graphics::{
-    image::{Image, ImageRaw},
-    pixelcolor::BinaryColor,
-    pixelcolor::BinaryColor::On as Black,
-    prelude::*,
-    primitives::Circle,
-    style::PrimitiveStyle,
-};
+use epd_waveshare::{epd1in54b::Epd1in54b, prelude::*};
+
+use embedded_graphics::primitives::{Circle, PrimitiveStyle};
+use epd_waveshare::color::Black;
+use epd_waveshare::epd1in54b::Display1in54b;
 
 #[entry]
 fn main() -> ! {
@@ -40,17 +38,17 @@ fn main() -> ! {
 
     // Constrain clock registers
     let rcc = device.RCC.constrain();
-    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     let mode = epd_waveshare::SPI_MODE;
 
-    let sck = gpiob.pb3; // 4
+    let sck = gpiob.pb3.into_alternate(); // 4
     let miso = spi::NoMiso {};
-    let mosi = gpiob.pb5; // 5
+    let mosi = gpiob.pb5.into_alternate(); // 5
 
-    let mut spi = Spi::new(device.SPI1, (sck, miso, mosi), mode, 4_000_000.hz(), clocks);
+    let mut spi = Spi::new(device.SPI1, (sck, miso, mosi), mode, 4.MHz(), &clocks);
 
-    let mut delay = Delay::new(cp.SYST, &clocks);
+    let mut delay = cp.SYST.delay(&clocks);
 
     let cs = gpioa.pa6.into_push_pull_output(); // 3
     let busy = gpioa.pa7.into_floating_input(); // 0
@@ -58,7 +56,7 @@ fn main() -> ! {
     let dc = gpiob.pb6.into_push_pull_output(); // 2
     let reset = gpioa.pa9.into_push_pull_output(); // 1
 
-    let mut einkdisp = EPD1in54b::new(&mut spi, cs, busy, dc, reset, &mut delay).unwrap();
+    let mut einkdisp = Epd1in54b::new(&mut spi, cs, busy, dc, reset, &mut delay).unwrap();
 
     let mut blackbuf = Display1in54b::default();
     let mut redbuf = Display1in54b::default();
@@ -67,17 +65,17 @@ fn main() -> ! {
         .into_styled(PrimitiveStyle::with_stroke(Black, 1))
         .draw(&mut blackbuf);
 
-    let red_layer_raw: ImageRaw<BinaryColor> = ImageRaw::new(FERRIS_RED, 200, 200);
-    let red_layer: Image<_, BinaryColor> = Image::new(&red_layer_raw, Point::zero());
+    let red_layer_raw: ImageRaw<BinaryColor> = ImageRaw::new(FERRIS_RED, 200);
+    let red_layer: Image<_> = Image::new(&red_layer_raw, Point::zero());
     let _ = red_layer.draw(&mut redbuf);
 
-    let black_layer_raw: ImageRaw<BinaryColor> = ImageRaw::new(FERRIS_BLACK, 200, 200);
-    let black_layer: Image<_, BinaryColor> = Image::new(&black_layer_raw, Point::zero());
+    let black_layer_raw: ImageRaw<BinaryColor> = ImageRaw::new(FERRIS_BLACK, 200);
+    let black_layer: Image<_> = Image::new(&black_layer_raw, Point::zero());
     let _ = black_layer.draw(&mut blackbuf);
 
     let _ = einkdisp.update_color_frame(&mut spi, blackbuf.buffer(), redbuf.buffer());
-    einkdisp.display_frame(&mut spi).unwrap();
-    einkdisp.sleep(&mut spi).unwrap();
+    einkdisp.display_frame(&mut spi, &mut delay).unwrap();
+    einkdisp.sleep(&mut spi, &mut delay).unwrap();
 
     loop {
         led.toggle();

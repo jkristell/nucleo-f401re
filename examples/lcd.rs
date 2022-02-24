@@ -7,10 +7,7 @@ use defmt_rtt as _;
 use panic_probe as _;
 
 use hd44780_driver::HD44780;
-use nucleo_f401re::{
-    hal::{delay::Delay, prelude::*},
-    pac,
-};
+use nucleo_f401re::{hal::prelude::*, pac};
 
 #[entry]
 fn main() -> ! {
@@ -31,10 +28,10 @@ fn main() -> ! {
 
     // Constrain clock registers
     let rcc = device.RCC.constrain();
-    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     // Get delay provider
-    let mut delay = Delay::new(core.SYST, &clocks);
+    let mut delay = core.SYST.delay(&clocks);
 
     // Setup the driver
     let mut lcd = HD44780::new_4bit(rs, en, d4, d5, d6, d7, &mut delay).unwrap();

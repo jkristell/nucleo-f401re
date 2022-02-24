@@ -12,7 +12,6 @@ use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{
-        delay::Delay,
         gpio::Edge,
         interrupt,
         prelude::*,
@@ -37,7 +36,7 @@ fn main() -> ! {
 
     // Constrain clock registers
     let rcc = dp.RCC.constrain();
-    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     let mut syscfg = dp.SYSCFG.constrain();
 
@@ -48,7 +47,7 @@ fn main() -> ! {
     let mut button = Button::new(gpioc.pc13);
     button.enable_interrupt(Edge::Falling, &mut syscfg, &mut dp.EXTI);
 
-    let mut delay = Delay::new(p.SYST, &clocks);
+    let mut delay = p.SYST.delay(&clocks);
 
     cortex_m::interrupt::free(|cs| {
         BUTTON.borrow(cs).replace(Some(button));
@@ -59,9 +58,9 @@ fn main() -> ! {
         cortex_m::peripheral::NVIC::unmask(pac::Interrupt::EXTI15_10);
     }
 
-    let sck = gpiob.pb3;
+    let sck = gpiob.pb3.into_alternate();
     let miso = spi::NoMiso {};
-    let mosi = gpiob.pb5;
+    let mosi = gpiob.pb5.into_alternate();
 
     // rclk
     let latch = gpiob.pb4.into_push_pull_output();
@@ -71,7 +70,7 @@ fn main() -> ! {
         phase: spi::Phase::CaptureOnFirstTransition,
     };
 
-    let spi = Spi::new(dp.SPI1, (sck, miso, mosi), mode, 10_000_000.hz(), clocks);
+    let spi = Spi::new(dp.SPI1, (sck, miso, mosi), mode, 10.MHz(), &clocks);
 
     let mut segment_display = SegmentDisplay::new(spi, OldOutputPin::from(latch));
 

@@ -2,7 +2,7 @@
 #![no_std]
 
 use defmt_rtt as _;
-use dwt_systick_monotonic::DwtSystick;
+use dwt_systick_monotonic::{fugit::TimerInstantU32, DwtSystick};
 use panic_probe as _;
 
 use infrared::{
@@ -18,19 +18,18 @@ use nucleo_f401re::{
     },
     Led,
 };
-use rtic::rtic_monotonic::Instant;
 
 #[rtic::app(device = nucleo_f401re::pac, peripherals = true)]
 mod app {
     use super::*;
-
-    const CORE_CLOCK: u32 = 84_000_000;
+    use rtic::Monotonic;
 
     #[monotonic(binds = SysTick, default = true)]
     type MyMono = DwtSystick<84_000_000>;
+    type MyInstant = TimerInstantU32<84_000_000>;
     type IrProto = Nec;
     type IrReceivePin = PA10<Input<Floating>>;
-    type IrReceiver = ConstReceiver<Nec, Event, PinInput<IrReceivePin>, CORE_CLOCK>;
+    type IrReceiver = ConstReceiver<Nec, Event, PinInput<IrReceivePin>, 1_000_000>;
 
     #[shared]
     struct Shared {}
@@ -39,7 +38,7 @@ mod app {
     struct Local {
         led: Led,
         recv: crate::app::IrReceiver,
-        last_event: Instant<MyMono>,
+        last_event: MyInstant,
     }
 
     #[init]
@@ -49,11 +48,11 @@ mod app {
 
         // Setup the system clock
         let rcc = device.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+        let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
         let mut syscfg = device.SYSCFG.constrain();
         let gpioa = device.GPIOA.split();
 
-        let mono_clock = clocks.hclk().0;
+        let mono_clock = clocks.hclk().to_Hz();
 
         let monot = DwtSystick::new(&mut ctx.core.DCB, ctx.core.DWT, ctx.core.SYST, mono_clock);
 
@@ -73,7 +72,7 @@ mod app {
                 .protocol::<IrProto>()
                 .event_driven()
                 .pin(ir_pin)
-                .build_const::<{ crate::app::CORE_CLOCK }>()
+                .build_const::<1_000_000>()
         };
 
         defmt::debug!("init done");
@@ -82,7 +81,7 @@ mod app {
             Local {
                 led,
                 recv,
-                last_event: Instant::new(0),
+                last_event: MyMono::zero(),
             },
             init::Monotonics(monot),
         )
@@ -100,14 +99,16 @@ mod app {
         let last_event = ctx.local.last_event;
 
         let now = monotonics::MyMono::now();
-        let dt = now.checked_duration_since(last_event).unwrap().integer();
+        if let Some(dt) = now.checked_duration_since(*last_event) {
+            let dt = dt.to_micros();
 
-        match recv.event(dt) {
-            Ok(Some(cmd)) => {
-                defmt::info!("CMD: {:?}", cmd);
+            match recv.event(dt) {
+                Ok(Some(cmd)) => {
+                    defmt::info!("CMD: {:?}", cmd);
+                }
+                Ok(None) => {}
+                Err(err) => defmt::error!("Recv error: {:?}", err),
             }
-            Ok(None) => {}
-            Err(err) => defmt::error!("Recv error: {:?}", err),
         }
 
         // Update Timestamp

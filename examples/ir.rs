@@ -14,18 +14,18 @@ use nucleo_f401re::{
         gpio::{gpioa::PA10, Edge, Floating, Input},
         interrupt,
         prelude::*,
-        timer::{Instant, MonoTimer},
     },
     pac, Led,
 };
 
-use infrared::protocol::{NecApple};
-use infrared::remotecontrol::nec::{Apple2009};
+use infrared::protocol::NecApple;
+use infrared::remotecontrol::nec::Apple2009;
 use infrared::remotecontrol::Button;
 use infrared::{
     receiver::{Event, PinInput},
     Receiver,
 };
+use stm32f4xx_hal::dwt::{Instant, MonoTimer};
 
 type IrProto = NecApple;
 type IrRemote = Apple2009;
@@ -43,7 +43,7 @@ fn main() -> ! {
 
     let mut syscfg = p.SYSCFG.constrain();
     let rcc = p.RCC.constrain();
-    let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     let monotonic = MonoTimer::new(cp.DWT, cp.DCB, &clocks);
     let mono_freq = monotonic.frequency();
@@ -68,7 +68,7 @@ fn main() -> ! {
     let receiver = Receiver::builder()
         .protocol::<IrProto>()
         .remotecontrol(IrRemote::default())
-        .resolution(mono_freq.0)
+        .resolution(mono_freq.to_Hz())
         .event_driven()
         .pin(ir_recv_pin)
         .build();
@@ -99,8 +99,6 @@ fn EXTI15_10() {
         let receiver = receiver.as_mut().unwrap();
 
         if let Some(dt) = LAST.map(|i| i.elapsed()) {
-            defmt::trace!("dt: {}", dt);
-
             match receiver.event(dt) {
                 Ok(Some(cmd)) => {
                     defmt::info!("cmd: {:?}", cmd);

@@ -29,7 +29,7 @@ fn main() -> ! {
 
     // Constrain clock registers
     let rcc = device.RCC.constrain();
-    let _clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+    let _clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
 
     let mut syscfg = device.SYSCFG.constrain();
 

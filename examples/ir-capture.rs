@@ -3,9 +3,9 @@
 
 use defmt_rtt as _;
 use panic_probe as _;
+
 #[rtic::app(device = nucleo_f401re::pac, peripherals = true)]
 mod app {
-    use core::convert::TryInto;
     use dwt_systick_monotonic::DwtSystick;
 
     use infrared::protocol::capture::Capture;
@@ -21,8 +21,6 @@ mod app {
         },
         Led,
     };
-    use rtic::export::monotonic::embedded_time::fixed_point::FixedPoint;
-    use rtic::rtic_monotonic::{Instant, Microseconds};
 
     const CORE_CLOCK: u32 = 84_000_000;
 
@@ -49,13 +47,18 @@ mod app {
 
         // Setup the system clock
         let rcc = device.RCC.constrain();
-        let clocks = rcc.cfgr.sysclk(84.mhz()).freeze();
+        let clocks = rcc.cfgr.sysclk(84.MHz()).freeze();
         let mut syscfg = device.SYSCFG.constrain();
         let gpioa = device.GPIOA.split();
 
-        let mono_clock = clocks.hclk().0;
+        let mono_clock = clocks.sysclk();
 
-        let monot = DwtSystick::new(&mut ctx.core.DCB, ctx.core.DWT, ctx.core.SYST, mono_clock);
+        let monot = DwtSystick::new(
+            &mut ctx.core.DCB,
+            ctx.core.DWT,
+            ctx.core.SYST,
+            clocks.hclk().to_Hz(),
+        );
 
         defmt::debug!("Mono clock: {}", mono_clock);
 
@@ -85,7 +88,7 @@ mod app {
         loop {}
     }
 
-    #[task(binds = EXTI15_10, local = [prev: Option<Instant<MyMono>> = None, led, recv])]
+    #[task(binds = EXTI15_10, local = [prev: Option<dwt_systick_monotonic::fugit::TimerInstantU32<84_000_000> > = None, led, recv])]
     fn on_pin_irq(ctx: on_pin_irq::Context) {
         let led = ctx.local.led;
         let recv = ctx.local.recv;
@@ -98,10 +101,11 @@ mod app {
 
         if let Some(last) = prev {
             //let dt = now.checked_duration_since(&last).unwrap().integer() as usize;
-            let generic_duration = now.checked_duration_since(last).unwrap();
-            let microseconds: Microseconds<u32> = generic_duration.try_into().unwrap();
 
-            match recv.event(microseconds.integer()) {
+            let generic_duration = now.checked_duration_since(*last).unwrap();
+            let microseconds = generic_duration.ticks();
+
+            match recv.event(microseconds) {
                 Ok(Some(cmd)) => {
                     defmt::info!("CMD: {:?}", defmt::Debug2Format(&cmd));
                 }
