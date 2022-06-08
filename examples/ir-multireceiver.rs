@@ -19,14 +19,14 @@ use nucleo_f401re::{
 };
 
 use infrared::{
-    protocol::{Denon, Nec, NecApple, NecSamsung, Rc5, Rc6},
-    receiver::{MultiReceiver, PinInput},
+    protocol::{Denon, Nec, AppleNec, SamsungNec, Rc5, Rc6},
+    receiver::{MultiReceiver},
 };
 use stm32f4xx_hal::dwt::{Instant, MonoTimer};
 
-type IrProtos = (Nec, NecSamsung, NecApple, Rc5, Rc6, Denon);
+type IrProtos = (Nec, SamsungNec, AppleNec, Rc5, Rc6, Denon);
 type IrReceivePin = PA10<Input>;
-type IrReceiver = MultiReceiver<IrProtos, PinInput<IrReceivePin>, 6>;
+type IrReceiver = MultiReceiver<6, IrProtos, IrReceivePin>;
 
 static IR_RX: Mutex<RefCell<Option<IrReceiver>>> = Mutex::new(RefCell::new(None));
 static TIMER: Mutex<RefCell<Option<MonoTimer>>> = Mutex::new(RefCell::new(None));
@@ -61,7 +61,7 @@ fn main() -> ! {
     ir_recv_pin.enable_interrupt(&mut p.EXTI);
     ir_recv_pin.trigger_on_edge(&mut p.EXTI, Edge::RisingFalling);
 
-    let receiver = MultiReceiver::new(mono_freq.to_Hz(), PinInput(ir_recv_pin));
+    let receiver = MultiReceiver::new(mono_freq.to_Hz(), ir_recv_pin);
 
     cortex_m::interrupt::free(|cs| {
         LED.borrow(cs).replace(Some(board_led));

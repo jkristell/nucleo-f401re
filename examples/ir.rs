@@ -18,19 +18,18 @@ use nucleo_f401re::{
     pac, Led,
 };
 
-use infrared::protocol::NecApple;
+use infrared::protocol::AppleNec;
 use infrared::remotecontrol::nec::Apple2009;
 use infrared::remotecontrol::Button;
 use infrared::{
-    receiver::{Event, PinInput},
     Receiver,
 };
 use stm32f4xx_hal::dwt::{Instant, MonoTimer};
 
-type IrProto = NecApple;
+type IrProto = AppleNec;
 type IrRemote = Apple2009;
 type IrReceivePin = PA10<Input>;
-type IrReceiver = infrared::Receiver<IrProto, Event, PinInput<IrReceivePin>, Button<IrRemote>>;
+type IrReceiver = infrared::Receiver<IrProto, IrReceivePin, u32, Button<IrRemote>>;
 
 static IR_RX: Mutex<RefCell<Option<IrReceiver>>> = Mutex::new(RefCell::new(None));
 static TIMER: Mutex<RefCell<Option<MonoTimer>>> = Mutex::new(RefCell::new(None));
@@ -68,8 +67,7 @@ fn main() -> ! {
     let receiver = Receiver::builder()
         .protocol::<IrProto>()
         .remotecontrol(IrRemote::default())
-        .resolution(mono_freq.to_Hz())
-        .event_driven()
+        .frequency(mono_freq.to_Hz())
         .pin(ir_recv_pin)
         .build();
 
@@ -110,7 +108,7 @@ fn EXTI15_10() {
 
         LAST.replace(mono.now());
 
-        receiver.pin().clear_interrupt_pending_bit();
+        receiver.pin_mut().clear_interrupt_pending_bit();
 
         let mut led = LED.borrow(cs).borrow_mut();
         led.as_mut().unwrap().toggle();

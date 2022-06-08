@@ -6,9 +6,8 @@ use dwt_systick_monotonic::{fugit::TimerInstantU32, DwtSystick};
 use panic_probe as _;
 
 use infrared::{
+    Receiver,
     protocol::Nec,
-    receiver::{Event, PinInput},
-    ConstReceiver,
 };
 use nucleo_f401re::{
     hal::{
@@ -29,7 +28,7 @@ mod app {
     type MyInstant = TimerInstantU32<84_000_000>;
     type IrProto = Nec;
     type IrReceivePin = PA10<Input>;
-    type IrReceiver = ConstReceiver<Nec, Event, PinInput<IrReceivePin>, 1_000_000>;
+    type IrReceiver = Receiver<Nec, IrReceivePin, u32>;
 
     #[shared]
     struct Shared {}
@@ -70,9 +69,8 @@ mod app {
 
             infrared::Receiver::builder()
                 .protocol::<IrProto>()
-                .event_driven()
                 .pin(ir_pin)
-                .build_const::<1_000_000>()
+                .build()
         };
 
         defmt::debug!("init done");
@@ -115,7 +113,7 @@ mod app {
         *last_event = now;
 
         // Clear pin interrupt
-        recv.pin().clear_interrupt_pending_bit();
+        recv.pin_mut().clear_interrupt_pending_bit();
 
         // Toggle the led
         led.toggle();
