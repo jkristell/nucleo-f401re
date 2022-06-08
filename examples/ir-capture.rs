@@ -8,10 +8,9 @@ use panic_probe as _;
 mod app {
     use dwt_systick_monotonic::DwtSystick;
 
-    use infrared::protocol::capture::Capture;
+    use infrared::protocol::Capture;
     use infrared::{
-        receiver::{Event, PinInput},
-        ConstReceiver,
+        Receiver
     };
     use nucleo_f401re::{
         hal::{
@@ -27,9 +26,9 @@ mod app {
     #[monotonic(binds = SysTick, default = true)]
     type MyMono = DwtSystick<CORE_CLOCK>;
 
-    type IrProto = Capture;
+    type IrProto = Capture<u32>;
     type IrReceivePin = PA10<Input>;
-    type IrReceiver = ConstReceiver<IrProto, Event, PinInput<IrReceivePin>, CORE_CLOCK>;
+    type IrReceiver = Receiver<IrProto, IrReceivePin, u32>;
 
     #[shared]
     struct Shared {}
@@ -74,9 +73,8 @@ mod app {
 
             infrared::Receiver::builder()
                 .protocol::<IrProto>()
-                .event_driven()
                 .pin(ir_pin)
-                .build_const::<{ crate::app::CORE_CLOCK }>()
+                .build()
         };
 
         defmt::debug!("init done");
@@ -97,7 +95,7 @@ mod app {
         let now = monotonics::MyMono::now();
 
         // Clear pin interrupt
-        recv.pin().clear_interrupt_pending_bit();
+        recv.pin_mut().clear_interrupt_pending_bit();
 
         if let Some(last) = prev {
             //let dt = now.checked_duration_since(&last).unwrap().integer() as usize;

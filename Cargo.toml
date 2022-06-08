@@ -48,8 +48,7 @@ tpa2016d2 = "0.2.0"
 segment-display = "0.1"
 embedded-graphics = { version = "0.7" }
 epd-waveshare = { version = "0.5", features = ["graphics"] }
-#infrared = { version = "0.13.0", features = ["defmt"] }
-infrared = { git = "https://github.com/jkristell/infrared", rev = "c762c019dac43a129a3108f116c7167a32229608", features = ["defmt"] }
+infrared = { version = "0.14.1", features = ["defmt"] }
 
 [profile.dev]
 codegen-units = 1
