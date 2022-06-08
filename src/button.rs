@@ -1,16 +1,16 @@
 use stm32f4xx_hal::{
-    gpio::{gpioc::PC13, Edge, ExtiPin, Input, PullUp},
+    gpio::{gpioc::PC13, Edge, ExtiPin, Input, PinMode},
     pac::EXTI,
     syscfg::SysCfg,
 };
 
 pub struct Button {
-    pin: PC13<Input<PullUp>>,
+    pin: PC13<Input>,
 }
 
 impl Button {
-    pub fn new<M>(pc13: PC13<M>) -> Self {
-        let pin = pc13.into_pull_up_input();
+    pub fn new(pc13: PC13<impl PinMode>) -> Self {
+        let pin = pc13.into_input().internal_pull_down(true);
         Self { pin }
     }
 

@@ -35,7 +35,7 @@ default = [
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
 embedded-hal = "0.2"
-stm32f4xx-hal = { version = "0.12", features = ["rt", "stm32f401", "usb_fs"] }
+stm32f4xx-hal = { version = "0.13", features = ["rt", "stm32f401", "usb_fs"] }
 
 [dev-dependencies]
 defmt = "0.3.0"

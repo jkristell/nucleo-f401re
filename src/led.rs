@@ -1,4 +1,4 @@
-use stm32f4xx_hal::gpio::{gpioa::PA5, Output, PushPull};
+use stm32f4xx_hal::gpio::{gpioa::PA5, Output, PinMode, PushPull};
 
 /// Onboard led
 pub struct Led {
@@ -6,7 +6,7 @@ pub struct Led {
 }
 
 impl Led {
-    pub fn new<M>(pin: PA5<M>) -> Self {
+    pub fn new(pin: PA5<impl PinMode>) -> Self {
         let pa5 = pin.into_push_pull_output();
         Self { pa5 }
     }
