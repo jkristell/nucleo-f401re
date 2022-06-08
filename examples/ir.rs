@@ -11,7 +11,7 @@ use panic_probe as _;
 
 use nucleo_f401re::{
     hal::{
-        gpio::{gpioa::PA10, Edge, Floating, Input},
+        gpio::{gpioa::PA10, Edge, Input},
         interrupt,
         prelude::*,
     },
@@ -29,7 +29,7 @@ use stm32f4xx_hal::dwt::{Instant, MonoTimer};
 
 type IrProto = NecApple;
 type IrRemote = Apple2009;
-type IrReceivePin = PA10<Input<Floating>>;
+type IrReceivePin = PA10<Input>;
 type IrReceiver = infrared::Receiver<IrProto, Event, PinInput<IrReceivePin>, Button<IrRemote>>;
 
 static IR_RX: Mutex<RefCell<Option<IrReceiver>>> = Mutex::new(RefCell::new(None));

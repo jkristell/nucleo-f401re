@@ -13,7 +13,7 @@ use infrared::{
 use nucleo_f401re::{
     hal::{
         gpio::gpioa::PA10,
-        gpio::{Edge, Floating, Input},
+        gpio::{Edge, Input},
         prelude::*,
     },
     Led,
@@ -28,7 +28,7 @@ mod app {
     type MyMono = DwtSystick<84_000_000>;
     type MyInstant = TimerInstantU32<84_000_000>;
     type IrProto = Nec;
-    type IrReceivePin = PA10<Input<Floating>>;
+    type IrReceivePin = PA10<Input>;
     type IrReceiver = ConstReceiver<Nec, Event, PinInput<IrReceivePin>, 1_000_000>;
 
     #[shared]
