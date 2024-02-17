@@ -43,7 +43,7 @@ fn main() -> ! {
     let mode = epd_waveshare::SPI_MODE;
 
     let sck = gpiob.pb3.into_alternate(); // 4
-    let miso = spi::NoMiso {};
+    let miso = spi::NoMiso::new();
     let mosi = gpiob.pb5.into_alternate(); // 5
 
     let mut spi = Spi::new(device.SPI1, (sck, miso, mosi), mode, 4.MHz(), &clocks);
@@ -79,7 +79,7 @@ fn main() -> ! {
 
     loop {
         led.toggle();
-        delay.delay_ms(1000_u16);
+        delay.delay_ms(1000);
     }
 }
 
