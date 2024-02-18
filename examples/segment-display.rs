@@ -59,7 +59,7 @@ fn main() -> ! {
     }
 
     let sck = gpiob.pb3.into_alternate();
-    let miso = spi::NoMiso {};
+    let miso = spi::NoMiso::new();
     let mosi = gpiob.pb5.into_alternate();
 
     // rclk
@@ -79,7 +79,7 @@ fn main() -> ! {
         segment_display.write_number(v);
         segment_display.refresh().unwrap();
 
-        delay.delay_us(200_u16);
+        delay.delay_us(200);
     }
 }
 

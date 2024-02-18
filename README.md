@@ -7,13 +7,11 @@
 
 1. Clone this repository
 
-#### Flash using Probe.rs
+#### Run
 
-```cargo flash --chip stm32f401re --example button-interrupt```
-
-Or with cargo embed
-
-```cargo embed --release --example button-rtic```
+```
+cargo run --example button-interrupt
+```
 
 If probe fails to flash your board you probably need to update the firmware on the onboard programmer.
 The updater can be found at: https://www.st.com/en/development-tools/stsw-link007.html
